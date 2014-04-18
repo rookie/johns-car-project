@@ -76,6 +76,24 @@ void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
 uint16_t fgColor = ST7735_WHITE;
 uint16_t bgColor = ST7735_BLACK;
 
+//TEST: testing drawBitmap function
+static unsigned char PROGMEM logo16_glcd_bmp[] =
+{ B00000000, B11000000,
+  B00000001, B11000000,
+  B00000001, B11000000,
+  B00000011, B11100000,
+  B11110011, B11100000,
+  B11111110, B11111000,
+  B01111110, B11111111,
+  B00110011, B10011111,
+  B00011111, B11111100,
+  B00001101, B01110000,
+  B00011011, B10100000,
+  B00111111, B11100000,
+  B00111111, B11110000,
+  B01111100, B11110000,
+  B01110000, B01110000,
+  B00000000, B00110000 };
 
 struct values {
    uint16_t coolantValue;
@@ -192,16 +210,29 @@ void drawInitialUI()
   tft.drawRect( 5,  5, 150, 15, fgColor);
   tft.fillRect( 5,  5,150/2,15, fgColor);
   
-  tft.drawRect( 5, 55,  70,  9, fgColor);
-  tft.fillRect( 5, 55,70/2,  9, fgColor);
+  tft.drawRect( 5, 48,  70,  9, fgColor);
+  tft.fillRect( 5, 48,70/2,  9, fgColor);
   
-  tft.drawRect(80, 55,  70,  9, fgColor);
-  tft.fillRect(80, 55,70/2,  9, fgColor);
+  tft.drawRect(85, 48,  70,  9, fgColor);
+  tft.fillRect(85, 48,70/2,  9, fgColor);
 
   //Box for speed
   tft.drawRect( 5, 88,  75, 35, fgColor);
   
-  //tftPrintTest();
+  //Strings
+  tft.setCursor( 5, 25);
+  tft.print("ENGINE COOLANT 285ºF"); //20*6 = 120 (rect is 150)
+
+  tft.setCursor( 5, 64);
+  tft.print("OUTSIDE 100ºF"); //13*6 = 78 (rect is 70)
+  
+  tft.setCursor(85, 64);
+  tft.print("INSIDE 100ºF"); //12*6 = 72 (rect is 70)
+  
+  
+  //Icon Test
+  tft.drawBitmap(100, 90,  logo16_glcd_bmp, 16, 16, fgColor);
+  
 }
 
 void calculateUI()
@@ -410,3 +441,4 @@ void gpsLoop()
     updateUI();
   }
 }
+
