@@ -47,6 +47,10 @@
 Adafruit_ST7735 tft = Adafruit_ST7735(cs, dc, rst);
 float p = 3.1415926;
 
+
+uint16_t fgColor = ST7735_WHITE;
+uint16_t bgColor = ST7735_BLACK;
+
 void setup(void) {
   Serial.begin(9600);
   Serial.print("hello!");
@@ -69,63 +73,36 @@ void setup(void) {
   Serial.println("init");
 
   uint16_t time = millis();
-  tft.fillScreen(ST7735_BLACK);
+  tft.fillScreen(bgColor);
   time = millis() - time;
 
   Serial.println(time, DEC);
-  delay(500);
 
-  // large block of text
-  tft.fillScreen(ST7735_BLACK);
-  testdrawtext("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", ST7735_WHITE);
-  delay(1000);
+  tft.setRotation(90);
+  tft.setTextColor(fgColor, bgColor);
 
-  // tft print function!
-  tftPrintTest();
-  delay(4000);
-
-  // a single pixel
-  tft.drawPixel(tft.width()/2, tft.height()/2, ST7735_GREEN);
-  delay(500);
-
-  // line draw test
-  testlines(ST7735_YELLOW);
-  delay(500);
-
-  // optimized lines
-  testfastlines(ST7735_RED, ST7735_BLUE);
-  delay(500);
-
-  testdrawrects(ST7735_GREEN);
-  delay(500);
-
-  testfillrects(ST7735_YELLOW, ST7735_MAGENTA);
-  delay(500);
-
-  tft.fillScreen(ST7735_BLACK);
-  testfillcircles(10, ST7735_BLUE);
-  testdrawcircles(10, ST7735_WHITE);
-  delay(500);
-
-  testroundrects();
-  delay(500);
-
-  testtriangles();
-  delay(500);
-
-  mediabuttons();
-  delay(500);
+  drawInitialUI();
 
   Serial.println("done");
-  delay(1000);
 }
 
 void loop() {
-  tft.invertDisplay(true);
-  delay(500);
-  tft.invertDisplay(false);
   delay(500);
 }
+
+
+void drawInitialUI()
+{
+  //Temp boxes
+  tft.drawRect( 5,  5, 150, 15, fgColor);
+  tft.drawRect( 5, 55,  70,  9, fgColor);
+  tft.drawRect(80, 55,  70,  9, fgColor);
+
+  //Box for speed
+  tft.drawRect( 5, 88,  75, 35, fgColor);
+  
+}
+
 
 void testlines(uint16_t color) {
   tft.fillScreen(ST7735_BLACK);
