@@ -99,17 +99,17 @@ void loop() {
 
 void updateUI()
 {
-  tft.setTextColor(ST7735_WHITE);
+  tft.setTextColor(ST7735_WHITE, ST7735_BLACK);
   drawText("A0 = ",  0, 10);
   tft.print(sensorValue1);
   tft.print("     "); //for values that get shorter
   
-  tft.setTextColor(ST7735_MAGENTA);
+  tft.setTextColor(ST7735_MAGENTA, ST7735_BLACK);
   drawText("A1 = ",  0, 30);
   tft.print(sensorValue2);
   tft.print("     "); //for values that get shorter
   
-  tft.setTextColor(ST7735_CYAN);
+  tft.setTextColor(ST7735_CYAN, ST7735_BLACK);
   drawText("A2 = ",  0, 50);
   tft.print(sensorValue3);
   tft.print("     "); //for values that get shorter
@@ -118,7 +118,7 @@ void updateUI()
 void setupText(uint16_t color)
 {
   tft.setCursor(0, 0);
-  tft.setTextColor(color);
+  tft.setTextColor(color, ST7735_BLACK);
   tft.setTextWrap(false);
 }
 

@@ -99,7 +99,7 @@ void loop() {
 
 void updateUI()
 {
-  tft.setTextColor(tft.Color565(sensorValue1, sensorValue2, sensorValue3));
+  tft.setTextColor(tft.Color565(sensorValue1, sensorValue2, sensorValue3), ST7735_BLACK);
   
   drawText("R = ",  0, 10);
   tft.print(sensorValue1);
@@ -117,7 +117,7 @@ void updateUI()
 void setupText(uint16_t color)
 {
   tft.setCursor(0, 0);
-  tft.setTextColor(color);
+  tft.setTextColor(color, ST7735_BLACK);
   tft.setTextWrap(false);
 }
 
