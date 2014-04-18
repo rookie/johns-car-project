@@ -47,6 +47,16 @@
 Adafruit_ST7735 tft = Adafruit_ST7735(cs, dc, rst);
 float p = 3.1415926;
 
+
+int sensorPin1 = A0;
+int sensorPin2 = A1;
+int sensorPin3 = A2;
+
+int sensorValue1 = 0;
+int sensorValue2 = 0;
+int sensorValue3 = 0;
+
+
 void setup(void) {
   Serial.begin(9600);
   Serial.print("hello!");
@@ -75,57 +85,85 @@ void setup(void) {
   Serial.println(time, DEC);
   delay(500);
 
-  // large block of text
   tft.fillScreen(ST7735_BLACK);
-  testdrawtext("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", ST7735_WHITE);
-  delay(1000);
-
-  // tft print function!
-  tftPrintTest();
-  delay(4000);
-
-  // a single pixel
-  tft.drawPixel(tft.width()/2, tft.height()/2, ST7735_GREEN);
-  delay(500);
-
-  // line draw test
-  testlines(ST7735_YELLOW);
-  delay(500);
-
-  // optimized lines
-  testfastlines(ST7735_RED, ST7735_BLUE);
-  delay(500);
-
-  testdrawrects(ST7735_GREEN);
-  delay(500);
-
-  testfillrects(ST7735_YELLOW, ST7735_MAGENTA);
-  delay(500);
-
-  tft.fillScreen(ST7735_BLACK);
-  testfillcircles(10, ST7735_BLUE);
-  testdrawcircles(10, ST7735_WHITE);
-  delay(500);
-
-  testroundrects();
-  delay(500);
-
-  testtriangles();
-  delay(500);
-
-  mediabuttons();
-  delay(500);
-
+  setupText(ST7735_WHITE);
+  
   Serial.println("done");
   delay(1000);
 }
 
 void loop() {
-  tft.invertDisplay(true);
-  delay(500);
-  tft.invertDisplay(false);
-  delay(500);
+  checkForUpdatedTemp();
+  delay(100);
 }
+
+void updateUI()
+{
+  tft.setTextColor(tft.Color565(sensorValue1, sensorValue2, sensorValue3));
+  
+  drawText("R = ",  0, 10);
+  tft.print(sensorValue1);
+  tft.print("     "); //for values that get shorter
+  
+  drawText("G = ",  0, 30);
+  tft.print(sensorValue2);
+  tft.print("     "); //for values that get shorter
+  
+  drawText("B = ",  0, 50);
+  tft.print(sensorValue3);
+  tft.print("     "); //for values that get shorter
+}
+
+void setupText(uint16_t color)
+{
+  tft.setCursor(0, 0);
+  tft.setTextColor(color);
+  tft.setTextWrap(false);
+}
+
+void drawText(char *text, uint8_t x, uint8_t y) {
+  tft.setCursor(0, y);
+  tft.print(text);
+}
+
+void drawMoreText(char *text)
+{
+  tft.print(text);
+}
+
+void checkForUpdatedTemp()
+{
+  int updated = 0;
+  
+  int newSensorValue1 = analogRead(sensorPin1);
+  int newSensorValue2 = analogRead(sensorPin2);
+  int newSensorValue3 = analogRead(sensorPin3);
+  
+  newSensorValue1 = map(newSensorValue1, 0, 1023, 0, 0x1F);
+  newSensorValue2 = map(newSensorValue2, 0, 1023, 0, 0x3F);
+  newSensorValue3 = map(newSensorValue3, 0, 1023, 0, 0x1F); 
+  
+  if (newSensorValue1 != sensorValue1) updated = 1;
+  if (newSensorValue2 != sensorValue2) updated = 1;
+  if (newSensorValue3 != sensorValue3) updated = 1;
+  
+  if (updated)
+  {
+    sensorValue1 = newSensorValue1;
+    sensorValue2 = newSensorValue2;
+    sensorValue3 = newSensorValue3;
+    
+    Serial.print(sensorValue1);
+    Serial.print("\t");
+    Serial.print(sensorValue2);
+    Serial.print("\t");
+    Serial.print(sensorValue3);
+    Serial.println();
+    
+    updateUI();
+  }
+}
+
 
 void testlines(uint16_t color) {
   tft.fillScreen(ST7735_BLACK);
