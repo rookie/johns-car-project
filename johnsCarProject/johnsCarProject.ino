@@ -31,6 +31,9 @@
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ST7735.h> // Hardware-specific library
 #include <SPI.h>
+//GPS
+#include <Adafruit_GPS.h>
+#include <SoftwareSerial.h>
 
 #if defined(__SAM3X8E__)
     #undef __FlashStringHelper::F(string_literal)
@@ -47,14 +50,107 @@
 Adafruit_ST7735 tft = Adafruit_ST7735(cs, dc, rst);
 float p = 3.1415926;
 
+//GPS
+// If using software serial, keep these lines enabled
+// (you can change the pin numbers to match your wiring):
+SoftwareSerial mySerial(3, 2);
+
+Adafruit_GPS GPS(&mySerial);
+// If using hardware serial (e.g. Arduino Mega), comment
+// out the above six lines and enable this line instead:
+//Adafruit_GPS GPS(&Serial1);
+
+
+// Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
+// Set to 'true' if you want to debug and listen to the raw GPS sentences. 
+#define GPSECHO  false
+
+// this keeps track of whether we're using the interrupt
+// off by default!
+boolean usingInterrupt = false;
+void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
+
 
 uint16_t fgColor = ST7735_WHITE;
 uint16_t bgColor = ST7735_BLACK;
+
+
+struct values {
+   uint16_t coolantValue;
+   uint16_t outsideValue;
+   uint16_t insideValue;
+   
+   //These might all come over as strings
+   uint16_t speed;
+   uint16_t hour;
+   uint16_t min;
+   uint16_t day;
+   uint16_t month;
+   
+};
+struct displayValues {
+   uint16_t coolantTemp;
+   uint16_t outsideTemp;
+   uint16_t insideTemp;
+   uint16_t speed;
+   char time[5];  //12:02
+   char date[5];  //12/13 or 12/12
+};
+
+struct values sensorValues;
+struct displayValues displayF;
+struct displayValues displayC;
 
 void setup(void) {
   Serial.begin(9600);
   Serial.print("hello!");
 
+  setupLCD();
+
+  tft.setRotation(90);
+  tft.setTextColor(fgColor, bgColor);
+
+  setupGPS();
+
+  drawInitialUI();
+
+  Serial.println("done");
+}
+
+void setupGPS()
+{
+  
+  // 9600 NMEA is the default baud rate for Adafruit MTK GPS's- some use 4800
+  GPS.begin(9600);
+  
+  // uncomment this line to turn on RMC (recommended minimum) and GGA (fix data) including altitude
+  GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
+  // uncomment this line to turn on only the "minimum recommended" data
+  //GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCONLY);
+  // For parsing data, we don't suggest using anything but either RMC only or RMC+GGA since
+  // the parser doesn't care about other sentences at this time
+  
+  // Set the update rate
+  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);   // 1 Hz update rate
+  // For the parsing code to work nicely and have time to sort thru the data, and
+  // print it out we don't suggest using anything higher than 1 Hz
+
+  // Request updates on antenna status, comment out to keep quiet
+  GPS.sendCommand(PGCMD_ANTENNA);
+
+  // the nice thing about this code is you can have a timer0 interrupt go off
+  // every 1 millisecond, and read data from the GPS for you. that makes the
+  // loop code a heck of a lot easier!
+  useInterrupt(true);
+
+  delay(1000);
+  // Ask for firmware version
+  mySerial.println(PMTK_Q_RELEASE);
+  
+}
+
+void setupLCD()
+{
   // Our supplier changed the 1.8" display slightly after Jan 10, 2012
   // so that the alignment of the TFT had to be shifted by a few pixels
   // this just means the init code is slightly different. Check the
@@ -77,16 +173,11 @@ void setup(void) {
   time = millis() - time;
 
   Serial.println(time, DEC);
-
-  tft.setRotation(90);
-  tft.setTextColor(fgColor, bgColor);
-
-  drawInitialUI();
-
-  Serial.println("done");
 }
 
+
 void loop() {
+  gpsLoop();
   delay(500);
 }
 
@@ -106,41 +197,7 @@ void drawInitialUI()
   //Box for speed
   tft.drawRect( 5, 88,  75, 35, fgColor);
   
-}
-
-
-void testlines(uint16_t color) {
-  tft.fillScreen(ST7735_BLACK);
-  for (int16_t x=0; x < tft.width(); x+=6) {
-    tft.drawLine(0, 0, x, tft.height()-1, color);
-  }
-  for (int16_t y=0; y < tft.height(); y+=6) {
-    tft.drawLine(0, 0, tft.width()-1, y, color);
-  }
-
-  tft.fillScreen(ST7735_BLACK);
-  for (int16_t x=0; x < tft.width(); x+=6) {
-    tft.drawLine(tft.width()-1, 0, x, tft.height()-1, color);
-  }
-  for (int16_t y=0; y < tft.height(); y+=6) {
-    tft.drawLine(tft.width()-1, 0, 0, y, color);
-  }
-
-  tft.fillScreen(ST7735_BLACK);
-  for (int16_t x=0; x < tft.width(); x+=6) {
-    tft.drawLine(0, tft.height()-1, x, 0, color);
-  }
-  for (int16_t y=0; y < tft.height(); y+=6) {
-    tft.drawLine(0, tft.height()-1, tft.width()-1, y, color);
-  }
-
-  tft.fillScreen(ST7735_BLACK);
-  for (int16_t x=0; x < tft.width(); x+=6) {
-    tft.drawLine(tft.width()-1, tft.height()-1, x, 0, color);
-  }
-  for (int16_t y=0; y < tft.height(); y+=6) {
-    tft.drawLine(tft.width()-1, tft.height()-1, 0, y, color);
-  }
+  //tftPrintTest();
 }
 
 void testdrawtext(char *text, uint16_t color) {
@@ -148,86 +205,6 @@ void testdrawtext(char *text, uint16_t color) {
   tft.setTextColor(color);
   tft.setTextWrap(true);
   tft.print(text);
-}
-
-void testfastlines(uint16_t color1, uint16_t color2) {
-  tft.fillScreen(ST7735_BLACK);
-  for (int16_t y=0; y < tft.height(); y+=5) {
-    tft.drawFastHLine(0, y, tft.width(), color1);
-  }
-  for (int16_t x=0; x < tft.width(); x+=5) {
-    tft.drawFastVLine(x, 0, tft.height(), color2);
-  }
-}
-
-void testdrawrects(uint16_t color) {
-  tft.fillScreen(ST7735_BLACK);
-  for (int16_t x=0; x < tft.width(); x+=6) {
-    tft.drawRect(tft.width()/2 -x/2, tft.height()/2 -x/2 , x, x, color);
-  }
-}
-
-void testfillrects(uint16_t color1, uint16_t color2) {
-  tft.fillScreen(ST7735_BLACK);
-  for (int16_t x=tft.width()-1; x > 6; x-=6) {
-    tft.fillRect(tft.width()/2 -x/2, tft.height()/2 -x/2 , x, x, color1);
-    tft.drawRect(tft.width()/2 -x/2, tft.height()/2 -x/2 , x, x, color2);
-  }
-}
-
-void testfillcircles(uint8_t radius, uint16_t color) {
-  for (int16_t x=radius; x < tft.width(); x+=radius*2) {
-    for (int16_t y=radius; y < tft.height(); y+=radius*2) {
-      tft.fillCircle(x, y, radius, color);
-    }
-  }
-}
-
-void testdrawcircles(uint8_t radius, uint16_t color) {
-  for (int16_t x=0; x < tft.width()+radius; x+=radius*2) {
-    for (int16_t y=0; y < tft.height()+radius; y+=radius*2) {
-      tft.drawCircle(x, y, radius, color);
-    }
-  }
-}
-
-void testtriangles() {
-  tft.fillScreen(ST7735_BLACK);
-  int color = 0xF800;
-  int t;
-  int w = 63;
-  int x = 159;
-  int y = 0;
-  int z = 127;
-  for(t = 0 ; t <= 15; t+=1) {
-    tft.drawTriangle(w, y, y, x, z, x, color);
-    x-=4;
-    y+=4;
-    z-=4;
-    color+=100;
-  }
-}
-
-void testroundrects() {
-  tft.fillScreen(ST7735_BLACK);
-  int color = 100;
-  int i;
-  int t;
-  for(t = 0 ; t <= 4; t+=1) {
-    int x = 0;
-    int y = 0;
-    int w = 127;
-    int h = 159;
-    for(i = 0 ; i <= 24; i+=1) {
-      tft.drawRoundRect(x, y, w, h, 5, color);
-      x+=2;
-      y+=3;
-      w-=4;
-      h-=6;
-      color+=1100;
-    }
-    color+=100;
-  }
 }
 
 void tftPrintTest() {
@@ -269,23 +246,88 @@ void tftPrintTest() {
   tft.print(" seconds.");
 }
 
-void mediabuttons() {
-  // play
-  tft.fillScreen(ST7735_BLACK);
-  tft.fillRoundRect(25, 10, 78, 60, 8, ST7735_WHITE);
-  tft.fillTriangle(42, 20, 42, 60, 90, 40, ST7735_RED);
-  delay(500);
-  // pause
-  tft.fillRoundRect(25, 90, 78, 60, 8, ST7735_WHITE);
-  tft.fillRoundRect(39, 98, 20, 45, 5, ST7735_GREEN);
-  tft.fillRoundRect(69, 98, 20, 45, 5, ST7735_GREEN);
-  delay(500);
-  // play color
-  tft.fillTriangle(42, 20, 42, 60, 90, 40, ST7735_BLUE);
-  delay(50);
-  // pause color
-  tft.fillRoundRect(39, 98, 20, 45, 5, ST7735_RED);
-  tft.fillRoundRect(69, 98, 20, 45, 5, ST7735_RED);
-  // play color
-  tft.fillTriangle(42, 20, 42, 60, 90, 40, ST7735_GREEN);
+
+#pragma mark - GPS Callbacks
+
+
+// Interrupt is called once a millisecond, looks for any new GPS data, and stores it
+SIGNAL(TIMER0_COMPA_vect) {
+  char c = GPS.read();
+  // if you want to debug, this is a good time to do it!
+#ifdef UDR0
+  if (GPSECHO)
+    if (c) UDR0 = c;  
+    // writing direct to UDR0 is much much faster than Serial.print 
+    // but only one character can be written at a time. 
+#endif
+}
+
+void useInterrupt(boolean v) {
+  if (v) {
+    // Timer0 is already used for millis() - we'll just interrupt somewhere
+    // in the middle and call the "Compare A" function above
+    OCR0A = 0xAF;
+    TIMSK0 |= _BV(OCIE0A);
+    usingInterrupt = true;
+  } else {
+    // do not call the interrupt function COMPA anymore
+    TIMSK0 &= ~_BV(OCIE0A);
+    usingInterrupt = false;
+  }
+}
+
+uint32_t timer = millis();
+void gpsLoop()
+{
+  // in case you are not using the interrupt above, you'll
+  // need to 'hand query' the GPS, not suggested :(
+  if (! usingInterrupt) {
+    // read data from the GPS in the 'main loop'
+    char c = GPS.read();
+    // if you want to debug, this is a good time to do it!
+    if (GPSECHO)
+      if (c) Serial.print(c);
+  }
+  
+  // if a sentence is received, we can check the checksum, parse it...
+  if (GPS.newNMEAreceived()) {
+    // a tricky thing here is if we print the NMEA sentence, or data
+    // we end up not listening and catching other sentences! 
+    // so be very wary if using OUTPUT_ALLDATA and trytng to print out data
+    //Serial.println(GPS.lastNMEA());   // this also sets the newNMEAreceived() flag to false
+  
+    if (!GPS.parse(GPS.lastNMEA()))   // this also sets the newNMEAreceived() flag to false
+      return;  // we can fail to parse a sentence in which case we should just wait for another
+  }
+
+  // if millis() or timer wraps around, we'll just reset it
+  if (timer > millis())  timer = millis();
+
+  // approximately every 2 seconds or so, print out the current stats
+  if (millis() - timer > 2000) { 
+    timer = millis(); // reset the timer
+    
+    Serial.print("\nTime: ");
+    Serial.print(GPS.hour, DEC); Serial.print(':');
+    Serial.print(GPS.minute, DEC); Serial.print(':');
+    Serial.print(GPS.seconds, DEC); Serial.print('.');
+    Serial.println(GPS.milliseconds);
+    Serial.print("Date: ");
+    Serial.print(GPS.day, DEC); Serial.print('/');
+    Serial.print(GPS.month, DEC); Serial.print("/20");
+    Serial.println(GPS.year, DEC);
+    Serial.print("Fix: "); Serial.print((int)GPS.fix);
+    Serial.print(" quality: "); Serial.println((int)GPS.fixquality); 
+    if (GPS.fix) {
+      Serial.print("Location: ");
+      Serial.print(GPS.latitude, 4); Serial.print(GPS.lat);
+      Serial.print(", "); 
+      Serial.print(GPS.longitude, 4); Serial.println(GPS.lon);
+      
+      Serial.print("Speed (knots): "); Serial.println(GPS.speed);
+      Serial.print("Angle: "); Serial.println(GPS.angle);
+      Serial.print("Altitude: "); Serial.println(GPS.altitude);
+      Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
+    }
+  }
 }
