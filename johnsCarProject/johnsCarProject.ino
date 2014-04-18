@@ -16,6 +16,8 @@
   MIT license, all text above must be included in any redistribution
  ****************************************************/
 
+//TODO: add string term \0 to UIvalues, somebody will print them someday
+
 // For the breakout, you can use any (2 or) 3 pins
 //#define sclk 13
 //#define mosi 11
@@ -80,24 +82,26 @@ struct values {
    uint16_t outsideValue;
    uint16_t insideValue;
    
+   uint8_t fix;
    //These might all come over as strings
-   uint16_t speed;
-   uint16_t hour;
-   uint16_t min;
-   uint16_t day;
-   uint16_t month;
+   float speed; //Knots
+   uint8_t hour;
+   uint8_t min;
+   uint8_t day;
+   uint8_t month;
    
 };
 struct displayValues {
-   uint16_t coolantTemp;
-   uint16_t outsideTemp;
-   uint16_t insideTemp;
-   uint16_t speed;
-   char time[5];  //12:02
-   char date[5];  //12/13 or 12/12
+   char coolantTemp[4];
+   char outsideTemp[4];
+   char insideTemp[4];
+   char speed[3];
+   char time[6];  //12:02
+   char date[6];  //12/13 or 12/12
 };
 
 struct values sensorValues;
+struct values sensorsUpdated; //0 for not changed, 1 for changed
 struct displayValues displayF;
 struct displayValues displayC;
 
@@ -141,7 +145,7 @@ void setupGPS()
   // the nice thing about this code is you can have a timer0 interrupt go off
   // every 1 millisecond, and read data from the GPS for you. that makes the
   // loop code a heck of a lot easier!
-  useInterrupt(true);
+  useInterrupt(false);
 
   delay(1000);
   // Ask for firmware version
@@ -198,6 +202,52 @@ void drawInitialUI()
   tft.drawRect( 5, 88,  75, 35, fgColor);
   
   //tftPrintTest();
+}
+
+void calculateUI()
+{
+  sprintf(displayF.coolantTemp, "%3d", 212);  
+  sprintf(displayF.outsideTemp, "%3d", 32);  
+  sprintf(displayF.insideTemp, "%3d", -40);  
+ 
+  sprintf(displayF.speed, "%2d", (sensorValues.speed * 1.15078) + 0.5); //mph round up 
+  
+  sprintf(displayC.coolantTemp, "%3d", 100);  
+  sprintf(displayC.outsideTemp, "%3d", 0);  
+  sprintf(displayC.insideTemp, "%3d", -40);  
+  
+  sprintf(displayC.speed, "%2d", (sensorValues.speed * 1.852) + 0.5); //kph round up 
+
+  if (sensorsUpdated.min != 0) {  
+    sprintf(displayF.time, "%2d:%02d", sensorValues.hour, sensorValues.min);  
+    sprintf(displayC.time, "%2d:%02d", sensorValues.hour, sensorValues.min);  
+  }
+  if (sensorsUpdated.day != 0) {
+    sprintf(displayF.date, "%2d/%2d", sensorValues.month, sensorValues.day);  
+    sprintf(displayC.date, "%2d/%2d", sensorValues.day, sensorValues.month);  
+  }
+}
+
+void updateUI()
+{
+  if (sensorsUpdated.min != 0) {  
+    //draw text
+    Serial.println(displayF.time);
+    Serial.println(displayC.time);
+
+    sensorsUpdated.hour = 0;
+    sensorsUpdated.min = 0;    
+  }
+  
+  if (sensorsUpdated.day != 0) {  
+    //draw text
+    Serial.println(displayF.date);
+    Serial.println(displayC.date);
+
+    sensorsUpdated.month = 0;
+    sensorsUpdated.day = 0;
+  }
+  
 }
 
 void testdrawtext(char *text, uint16_t color) {
@@ -329,5 +379,34 @@ void gpsLoop()
       Serial.print("Altitude: "); Serial.println(GPS.altitude);
       Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
     }
+    
+    if (sensorValues.month != GPS.month || sensorValues.day != GPS.day)
+    {
+      sensorValues.month = GPS.month;
+      sensorValues.day   = GPS.day;
+      
+      sensorsUpdated.month = 1;
+      sensorsUpdated.day = 1;
+    }
+
+    //TODO: this is UTC time
+    if (sensorValues.hour != GPS.hour || sensorValues.min != GPS.minute)
+    {
+      sensorValues.hour  = GPS.hour;
+      sensorValues.min   = GPS.minute;
+      
+      sensorsUpdated.hour = 1;
+      sensorsUpdated.min = 1;
+    }
+    
+    //TODO: Just assume this is always updating?
+    //TODO: Should at least calculate mph values to compare
+    sensorValues.fix   = GPS.fix;
+    if (GPS.fix){
+      sensorValues.speed = GPS.speed;
+    }
+    calculateUI();
+    
+    updateUI();
   }
 }
