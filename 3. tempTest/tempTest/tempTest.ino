@@ -1,50 +1,48 @@
 /*
-  Analog Input
- Demonstrates analog input by reading an analog sensor on analog pin 0 and
- turning on and off a light emitting diode(LED)  connected to digital pin 13. 
- The amount of time the LED will be on and off depends on
- the value obtained by analogRead(). 
- 
- The circuit:
- * Potentiometer attached to analog input 0
- * center pin of the potentiometer to the analog pin
- * one side pin (either one) to ground
- * the other side pin to +5V
- * LED anode (long leg) attached to digital output 13
- * LED cathode (short leg) attached to ground
- 
- * Note: because most Arduinos have a built-in LED attached 
- to pin 13 on the board, the LED is optional.
- 
- 
- Created by David Cuartielles
- modified 30 Aug 2011
- By Tom Igoe
+  ReadAnalogVoltage
+  Reads an analog input on pin 0, converts it to voltage, and prints the result to the serial monitor.
+  Attach the center pin of a potentiometer to pin A0, and the outside pins to +5V and ground.
  
  This example code is in the public domain.
- 
- http://arduino.cc/en/Tutorial/AnalogInput
- 
  */
+ 
 
-int sensorPin1 = A0;    // select the input pin for the potentiometer
-int sensorPin2 = A1;    // select the input pin for the potentiometer
-int sensorPin3 = A2;    // select the input pin for the potentiometer
+int sensorPin1 = A0;
+int sensorPin2 = A1;
+int sensorPin3 = A2;
 
-int ledPin = 13;      // select the pin for the LED
-int sensorValue1 = 0;  // variable to store the value coming from the sensor
-int sensorValue2 = 0;  // variable to store the value coming from the sensor
-int sensorValue3 = 0;  // variable to store the value coming from the sensor
+int sensorValue1 = 0;
+int sensorValue2 = 0;
+int sensorValue3 = 0;
 
 void setup() {
-  // declare the ledPin as an OUTPUT:
-  pinMode(ledPin, OUTPUT);  
+  Serial.begin(9600);
 }
 
 void loop() {
-  // read the value from the sensor:
-  sensorValue = analogRead(sensorPin); 
+  int updated = 0;
   
+  int newSensorValue1 = analogRead(sensorPin1);
+  int newSensorValue2 = analogRead(sensorPin2);
+  int newSensorValue3 = analogRead(sensorPin3);
   
-  delay(100);                  
+  if (newSensorValue1 != sensorValue1) updated = 1;
+  if (newSensorValue2 != sensorValue2) updated = 1;
+  if (newSensorValue3 != sensorValue3) updated = 1;
+  
+  if (updated)
+  {
+    sensorValue1 = newSensorValue1;
+    sensorValue2 = newSensorValue2;
+    sensorValue3 = newSensorValue3;
+    
+    Serial.print(sensorValue1);
+    Serial.print("\t");
+    Serial.print(sensorValue2);
+    Serial.print("\t");
+    Serial.print(sensorValue3);
+    Serial.println();
+    
+  }
+  delay(100);
 }
