@@ -95,8 +95,13 @@ void drawInitialUI()
 {
   //Temp boxes
   tft.drawRect( 5,  5, 150, 15, fgColor);
+  tft.fillRect( 5,  5,150/2,15, fgColor);
+  
   tft.drawRect( 5, 55,  70,  9, fgColor);
+  tft.fillRect( 5, 55,70/2,  9, fgColor);
+  
   tft.drawRect(80, 55,  70,  9, fgColor);
+  tft.fillRect(80, 55,70/2,  9, fgColor);
 
   //Box for speed
   tft.drawRect( 5, 88,  75, 35, fgColor);
