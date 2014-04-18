@@ -88,6 +88,8 @@ void setup(void) {
   tft.fillScreen(ST7735_BLACK);
   setupText(ST7735_WHITE);
   
+  setRotation(90);
+  
   Serial.println("done");
   delay(1000);
 }
