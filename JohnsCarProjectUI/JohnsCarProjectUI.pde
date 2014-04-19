@@ -37,7 +37,7 @@ void drawInitialUI()
   tftfillRect(85, 48,70/2,  9, fgColor);
 
   //Box for speed
-  tftdrawRect( 5, 88,  75, 35, fgColor);
+  //tftdrawRect( 5, 88,  75, 35, fgColor);
   
   //Strings
   tftsetCursor( 5, 25);
@@ -59,6 +59,9 @@ void drawInitialUI()
   
   drawTime();
   drawDate();
+  
+  tftdraw8(0, 0);
+  tftdraw9(0, 0);
   
   /*
   //Icon Test
@@ -115,4 +118,53 @@ void tftdrawRect(float x, float y, float w, float h, color c)
   noFill();
   rect(x, y, w, h);
 }
-
+void tftdraw7(float x, float y)
+{
+  x = 5;
+  y = 88;
+  float w = 32; //or 40?
+  float h = 35;
+  //draw main background
+  noStroke();
+  fill(fgColor);
+  rect(x, y, w, h);
+  //remove left bottom
+  fill(bgColor);
+  rect(x, y+8, w-7, h-8);
+}
+void tftdraw8(float x, float y)
+{
+  //width is 
+  x = 5;
+  y = 88;
+  float w = 32; //or 40?
+  float h = 35;
+  //draw main background
+  noStroke();
+  fill(fgColor);
+  rect(x, y, w, h);
+  //remove center top
+  fill(bgColor);
+  rect(x+8, y+8, w-7-8, 6);
+  //remove center bottom
+  rect(x+8, y+8+6+7, w-7-8, 6);
+  //remove corners
+  point(x,y);
+  point(x,y+h-1);
+}
+void tftdraw9(float x, float y)
+{
+  x = 46;
+  y = 88;
+  float w = 32; //or 40?
+  float h = 35;
+  //draw main background
+  noStroke();
+  fill(fgColor);
+  rect(x, y, w, h); 
+  //remove center top
+  fill(bgColor);
+  rect(x+8, y+8, w-7-8, 6);
+  //remove left bottom
+  rect(x, y+8+6+7, w-7, 6+8);
+}
