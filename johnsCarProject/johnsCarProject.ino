@@ -129,7 +129,7 @@ void setup(void) {
 
   setupLCD();
 
-  tft.setRotation(90);
+  tft.setRotation(45);       //4/18/2014 jp - base library rotation oddity
   tft.setTextColor(fgColor, bgColor);
 
   setupGPS();
