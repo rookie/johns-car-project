@@ -129,7 +129,7 @@ void setup(void) {
 
   setupLCD();
 
-  tft.setRotation(90);
+  tft.setRotation(1);
   tft.setTextColor(fgColor, bgColor);
 
   setupGPS();
@@ -522,12 +522,13 @@ static unsigned char PROGMEM icon32_num9[] =
   B00000000, B00000000, B00000000, B01111111
   };
   
+//TODO: John doesnt have the modified libraries yet
 void tftdraw8(int x, int y)
 {
-  tft.drawBitmap(x, y,  icon32_num8, 32, 35, fgColor, bgColor);
+  tft.drawBitmap(x, y,  icon32_num8, 32, 35, fgColor);//, bgColor);
 }
 void tftdraw9(int x, int y)
 {
-  tft.drawBitmap(x, y,  icon32_num9, 32, 35, fgColor, bgColor);
+  tft.drawBitmap(x, y,  icon32_num9, 32, 35, fgColor);//, bgColor);
 }
 
