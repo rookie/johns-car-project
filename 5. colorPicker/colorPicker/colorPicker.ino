@@ -141,9 +141,9 @@ void checkForUpdatedTemp()
   int newSensorValue2 = analogRead(sensorPin2);
   int newSensorValue3 = analogRead(sensorPin3);
   
-  newSensorValue1 = map(newSensorValue1, 0, 1023, 0, 0x1F);
-  newSensorValue2 = map(newSensorValue2, 0, 1023, 0, 0x3F);
-  newSensorValue3 = map(newSensorValue3, 0, 1023, 0, 0x1F); 
+  newSensorValue1 = map(newSensorValue1, 0, 1023, 0, 255);
+  newSensorValue2 = map(newSensorValue2, 0, 1023, 0, 255);
+  newSensorValue3 = map(newSensorValue3, 0, 1023, 0, 255);
   
   if (newSensorValue1 != sensorValue1) updated = 1;
   if (newSensorValue2 != sensorValue2) updated = 1;
