@@ -163,7 +163,7 @@ void setupGPS()
   // the nice thing about this code is you can have a timer0 interrupt go off
   // every 1 millisecond, and read data from the GPS for you. that makes the
   // loop code a heck of a lot easier!
-  useInterrupt(false);
+  useInterrupt(true);
 
   delay(1000);
   // Ask for firmware version
