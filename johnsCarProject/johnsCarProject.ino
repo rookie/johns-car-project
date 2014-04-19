@@ -200,7 +200,7 @@ void setupLCD()
 
 void loop() {
   gpsLoop();
-  delay(500);
+  delay(100);
 }
 
 
@@ -244,14 +244,15 @@ void calculateUI()
   sprintf(displayF.outsideTemp, "%3d", 32);  
   sprintf(displayF.insideTemp, "%3d", -40);  
  
-  sprintf(displayF.speed, "%2d", (sensorValues.speed * 1.15078) + 0.5); //mph round up 
   
   sprintf(displayC.coolantTemp, "%3d", 100);  
   sprintf(displayC.outsideTemp, "%3d", 0);  
   sprintf(displayC.insideTemp, "%3d", -40);  
   
-  sprintf(displayC.speed, "%2d", (sensorValues.speed * 1.852) + 0.5); //kph round up 
-
+  if (sensorsUpdated.speed != 0) {
+    sprintf(displayF.speed, "%2d", (sensorValues.speed * 1.15078) + 0.5); //mph round up 
+    sprintf(displayC.speed, "%2d", (sensorValues.speed * 1.852) + 0.5); //kph round up 
+  }
   if (sensorsUpdated.min != 0) {  
     sprintf(displayF.time, "%2d:%02d", sensorValues.hour, sensorValues.min);  
     sprintf(displayC.time, "%2d:%02d", sensorValues.hour, sensorValues.min);  
@@ -264,11 +265,26 @@ void calculateUI()
 
 void updateUI()
 {
+  if (sensorsUpdated.speed != 0) {  
+    //draw text
+    Serial.println(displayF.speed);
+    Serial.println(displayC.speed);
+
+    tft.setCursor(5, 77);
+    tft.print(displayF.speed);
+    
+    sensorsUpdated.speed = 0;    
+  }
+  
+  
   if (sensorsUpdated.min != 0) {  
     //draw text
     Serial.println(displayF.time);
     Serial.println(displayC.time);
 
+    tft.setCursor(107, 100);
+    tft.print(displayF.time);
+    
     sensorsUpdated.hour = 0;
     sensorsUpdated.min = 0;    
   }
@@ -277,6 +293,9 @@ void updateUI()
     //draw text
     Serial.println(displayF.date);
     Serial.println(displayC.date);
+
+    tft.setCursor(107, 115);
+    tft.print(displayF.date);
 
     sensorsUpdated.month = 0;
     sensorsUpdated.day = 0;
@@ -387,8 +406,8 @@ void gpsLoop()
   // if millis() or timer wraps around, we'll just reset it
   if (timer > millis())  timer = millis();
 
-  // approximately every 2 seconds or so, print out the current stats
-  if (millis() - timer > 2000) { 
+  // approximately every 0.5 seconds or so, print out the current stats
+  if (millis() - timer > 500) { //2000) { 
     timer = millis(); // reset the timer
     
     Serial.print("\nTime: ");
@@ -414,6 +433,7 @@ void gpsLoop()
       Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
     }
     
+    
     if (sensorValues.month != GPS.month || sensorValues.day != GPS.day)
     {
       sensorValues.month = GPS.month;
@@ -437,7 +457,12 @@ void gpsLoop()
     //TODO: Should at least calculate mph values to compare
     sensorValues.fix   = GPS.fix;
     if (GPS.fix){
-      sensorValues.speed = GPS.speed;
+      
+      if (sensorValues.speed != GPS.speed)
+      {
+        sensorValues.speed = GPS.speed;
+        sensorsUpdated.speed = 1;
+      }
     }
     calculateUI();
     
