@@ -284,8 +284,8 @@ void updateUI()
     tft.print(displayF.speed);
     
     
-    //tftdrawNumber(displayF.speed[0],  5, 88);
-    //tftdrawNumber(displayF.speed[1], 46, 88);
+    tftdrawNumber(displayF.speed[0],  5, 88);
+    tftdrawNumber(displayF.speed[1], 46, 88);
     
     
     sensorsUpdated.speed = 0;    
@@ -865,10 +865,10 @@ static unsigned char PROGMEM icon32_num9[] =
 //TODO: John doesnt have the modified libraries yet
 void tftdraw8(int x, int y)
 {
-  tft.drawBitmap(x, y,  icon32_num8, 32, 35, fgColor);//, bgColor);
+  tft.drawBitmap(x, y,  icon32_num8, 32, 35, fgColor, bgColor);
 }
 void tftdraw9(int x, int y)
 {
-  tft.drawBitmap(x, y,  icon32_num9, 32, 35, fgColor);//, bgColor);
+  tft.drawBitmap(x, y,  icon32_num9, 32, 35, fgColor, bgColor);
 }
 
