@@ -25,6 +25,7 @@
 #define dc   9
 #define rst  8  // you can also connect this to the Arduino reset
 
+#define light 5
 //Use these pins for the shield!
 //#define cs   10
 //#define dc   8
@@ -193,8 +194,10 @@ void setupLCD()
   uint16_t time = millis();
   tft.fillScreen(bgColor);
   time = millis() - time;
-
   Serial.println(time, DEC);
+  
+  pinMode(light, OUTPUT);
+  digitalWrite(light, HIGH);
 }
 
 
@@ -260,8 +263,13 @@ void calculateUI()
   sprintf(displayC.insideTemp, "%3d", -40);  
   
   if (sensorsUpdated.speed != 0) {
-    sprintf(displayF.speed, "%2d", (sensorValues.speed * 1.15078) + 0.5); //mph round up 
-    sprintf(displayC.speed, "%2d", (sensorValues.speed * 1.852) + 0.5); //kph round up 
+    
+    //Serial.print("Speed (knots): "); Serial.println(sensorValues.speed);
+    //Serial.print("Speed   (mph): "); Serial.println(sensorValues.speed * 1.15078);
+    //Serial.print("Speed   (kph): "); Serial.println(sensorValues.speed * 1.852);
+
+    sprintf(displayF.speed, "%2d", (int)((sensorValues.speed * 1.15078) + 0.5)); //mph round up 
+    sprintf(displayC.speed, "%2d", (int)((sensorValues.speed * 1.852) + 0.5)); //kph round up 
   }
   if (sensorsUpdated.min != 0) {  
     sprintf(displayF.time, "%2d:%02d", sensorValues.hour, sensorValues.min);  
@@ -445,28 +453,28 @@ void tftdrawNumber(char number, int x, int y)
 {
   switch(number){
     case '0': 
-      tftdraw8(x, y);
+      tftdraw0(x, y);
     break; 
     case '1': 
-      tftdraw8(x, y);
+      tftdraw1(x, y);
     break; 
     case '2': 
-      tftdraw8(x, y);
+      tftdraw2(x, y);
     break; 
     case '3': 
-      tftdraw8(x, y);
+      tftdraw3(x, y);
     break; 
     case '4': 
-      tftdraw8(x, y);
+      tftdraw4(x, y);
     break; 
     case '5': 
-      tftdraw8(x, y);
+      tftdraw5(x, y);
     break; 
     case '6': 
-      tftdraw8(x, y);
+      tftdraw6(x, y);
     break; 
     case '7': 
-      tftdraw8(x, y);
+      tftdraw7(x, y);
     break; 
     case '8': 
       tftdraw8(x, y);
@@ -475,6 +483,7 @@ void tftdrawNumber(char number, int x, int y)
       tftdraw9(x, y);
     break; 
     default:
+      tftdrawBlank(x, y);
     break;
   }
 }
@@ -496,13 +505,13 @@ static unsigned char PROGMEM icon32_num0[] =
   B11111111, B00000000, B00000000, B01111111,
   B11111111, B00000000, B00000000, B01111111,
   B11111111, B00000000, B00000000, B01111111,
-  B11111111, B00000000, B00000000, B11111111,
-  B11111111, B00000000, B00000000, B11111111,
-  B11111111, B00000000, B00000000, B11111111,
-  B11111111, B00000000, B00000000, B11111111,
-  B11111111, B00000000, B00000000, B11111111,
-  B11111111, B00000000, B00000000, B11111111,
-  B11111111, B00000000, B00000000, B11111111,
+  B11111111, B00000000, B00000000, B01111111,
+  B11111111, B00000000, B00000000, B01111111,
+  B11111111, B00000000, B00000000, B01111111,
+  B11111111, B00000000, B00000000, B01111111,
+  B11111111, B00000000, B00000000, B01111111,
+  B11111111, B00000000, B00000000, B01111111,
+  B11111111, B00000000, B00000000, B01111111,
   B11111111, B00000000, B00000000, B01111111,
   B11111111, B00000000, B00000000, B01111111,
   B11111111, B00000000, B00000000, B01111111,
@@ -861,8 +870,43 @@ static unsigned char PROGMEM icon32_num9[] =
   B00000000, B00000000, B00000000, B01111111,
   B00000000, B00000000, B00000000, B01111111
   };
-
-//TODO: John doesnt have the modified libraries yet
+void tftdrawBlank(int x, int y)
+{
+  //tftdraw0( x, y)
+  tft.fillRect( x, y, 32, 35, bgColor);
+}
+void tftdraw0(int x, int y)
+{
+  tft.drawBitmap(x, y,  icon32_num0, 32, 35, fgColor, bgColor);
+}
+void tftdraw1(int x, int y)
+{
+  tft.drawBitmap(x, y,  icon32_num1, 32, 35, fgColor, bgColor);
+}
+void tftdraw2(int x, int y)
+{
+  tft.drawBitmap(x, y,  icon32_num2, 32, 35, fgColor, bgColor);
+}
+void tftdraw3(int x, int y)
+{
+  tft.drawBitmap(x, y,  icon32_num3, 32, 35, fgColor, bgColor);
+}
+void tftdraw4(int x, int y)
+{
+  tft.drawBitmap(x, y,  icon32_num4, 32, 35, fgColor, bgColor);
+}
+void tftdraw5(int x, int y)
+{
+  tft.drawBitmap(x, y,  icon32_num5, 32, 35, fgColor, bgColor);
+}
+void tftdraw6(int x, int y)
+{
+  tft.drawBitmap(x, y,  icon32_num6, 32, 35, fgColor, bgColor);
+}
+void tftdraw7(int x, int y)
+{
+  tft.drawBitmap(x, y,  icon32_num7, 32, 35, fgColor, bgColor);
+}
 void tftdraw8(int x, int y)
 {
   tft.drawBitmap(x, y,  icon32_num8, 32, 35, fgColor, bgColor);

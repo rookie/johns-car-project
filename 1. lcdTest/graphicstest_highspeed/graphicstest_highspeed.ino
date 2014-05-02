@@ -22,7 +22,7 @@
 #define cs   10
 #define dc   9
 #define rst  8  // you can also connect this to the Arduino reset
-
+#define light 5
 //Use these pins for the shield!
 //#define cs   10
 //#define dc   8
@@ -72,6 +72,9 @@ void setup(void) {
   tft.fillScreen(ST7735_BLACK);
   time = millis() - time;
 
+  pinMode(light, OUTPUT);
+  digitalWrite(light, HIGH);
+  
   Serial.println(time, DEC);
   delay(500);
 
