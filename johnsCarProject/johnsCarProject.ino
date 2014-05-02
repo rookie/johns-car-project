@@ -77,25 +77,6 @@ void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
 uint16_t fgColor = ST7735_WHITE;
 uint16_t bgColor = ST7735_BLACK;
 
-//TEST: testing drawBitmap function
-static unsigned char PROGMEM logo16_glcd_bmp[] =
-{ B00000000, B11000000,
-  B00000001, B11000000,
-  B00000001, B11000000,
-  B00000011, B11100000,
-  B11110011, B11100000,
-  B11111110, B11111000,
-  B01111110, B11111111,
-  B00110011, B10011111,
-  B00011111, B11111100,
-  B00001101, B01110000,
-  B00011011, B10100000,
-  B00111111, B11100000,
-  B00111111, B11110000,
-  B01111100, B11110000,
-  B01110000, B01110000,
-  B00000000, B00110000 };
-
 struct values {
    uint16_t coolantValue;
    uint16_t outsideValue;
@@ -126,7 +107,7 @@ struct displayValues displayC;
 
 void setup(void) {
   Serial.begin(9600);
-  Serial.print("hello!");
+  Serial.println("hello!");
 
   setupLCD();
 
@@ -154,7 +135,7 @@ void setupGPS()
   // the parser doesn't care about other sentences at this time
   
   // Set the update rate
-  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);   // 1 Hz update rate
+  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_5HZ);   // 5 Hz update rate
   // For the parsing code to work nicely and have time to sort thru the data, and
   // print it out we don't suggest using anything higher than 1 Hz
 
@@ -198,6 +179,7 @@ void setupLCD()
   
   pinMode(light, OUTPUT);
   digitalWrite(light, HIGH);
+  //analogWrite(light, 128);
 }
 
 
@@ -237,17 +219,14 @@ void drawInitialUI()
   
   //Strings
   tft.setCursor( 5, 25);
-  tft.print("ENGINE COOLANT 285ºF"); //20*6 = 120 (rect is 150)
+  tft.print("ENGINE COOLANT 285F"); //20*6 = 120 (rect is 150)
 
   tft.setCursor( 5, 64);
-  tft.print("OUTSIDE 100ºF"); //13*6 = 78 (rect is 70)
+  tft.print("OUTSIDE 100F"); //13*6 = 78 (rect is 70)
   
   tft.setCursor(85, 64);
-  tft.print("INSIDE 100ºF"); //12*6 = 72 (rect is 70)
+  tft.print("INSIDE 100F"); //12*6 = 72 (rect is 70)
   
-  
-  //Icon Test
-  tft.drawBitmap(100, 90,  logo16_glcd_bmp, 16, 16, fgColor);
   
 }
 
@@ -268,6 +247,7 @@ void calculateUI()
     //Serial.print("Speed   (mph): "); Serial.println(sensorValues.speed * 1.15078);
     //Serial.print("Speed   (kph): "); Serial.println(sensorValues.speed * 1.852);
 
+    //TODO: support 100+ numbers
     sprintf(displayF.speed, "%2d", (int)((sensorValues.speed * 1.15078) + 0.5)); //mph round up 
     sprintf(displayC.speed, "%2d", (int)((sensorValues.speed * 1.852) + 0.5)); //kph round up 
   }
@@ -386,7 +366,7 @@ void gpsLoop()
   // approximately every 0.5 seconds or so, print out the current stats
   if (millis() - timer > 500) { //2000) { 
     timer = millis(); // reset the timer
-    
+    /*
     Serial.print("\nTime: ");
     Serial.print(GPS.hour, DEC); Serial.print(':');
     Serial.print(GPS.minute, DEC); Serial.print(':');
@@ -409,7 +389,7 @@ void gpsLoop()
       Serial.print("Altitude: "); Serial.println(GPS.altitude);
       Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
     }
-    
+    */
     
     if (sensorValues.month != GPS.month || sensorValues.day != GPS.day)
     {
