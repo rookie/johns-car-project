@@ -198,6 +198,17 @@ void loop() {
 
 void testUIBars()
 {
+  static int bartest = 0;
+  static int direction = 1;
+  drawUITopBar(bartest);
+  drawUILeftBar(bartest%69);
+  drawUIRightBar(bartest%69);
+  
+  bartest += direction;
+  if(bartest >= 148 || bartest <= 0){
+    direction = -direction;
+  }
+  
   
 }
 
@@ -209,11 +220,56 @@ void testUISpeed()
   sensorValues.speedMPH = speedtest;
   sensorsUpdated.speedKnots = 1;
   speedtest += direction;
-  if(speedtest >= 99 || speedtest <= 0){
+  if(speedtest >= 199 || speedtest <= 0){
     direction = -direction;
   }
   
   delay(250);
+}
+
+void drawUITopBar(int width)
+{
+  static int lastWidth = 0;
+  uint16_t barColor = ST7735_WHITE;
+  //fill min is 0-148
+  //full tft.fillRect( 6,  6,148,13, ST7735_RED);
+  //half tft.fillRect( 6,  6,150/2,13, ST7735_BLUE);
+  
+  tft.fillRect( 6,  6,width,13, ST7735_RED);
+  tft.fillRect( 6+width,  6,148-width,13, bgColor);
+}
+
+void drawUILeftBar(int width)
+{
+  static int lastWidth = 0;
+  uint16_t barColor = ST7735_WHITE;
+  //fill min is 0-68
+  //full tft.fillRect( 6, 49,68,7, ST7735_RED);
+  //half tft.fillRect( 6, 49,70/2,7, ST7735_BLUE);
+  
+  tft.fillRect( 6,  49, width, 7, ST7735_RED);
+  tft.fillRect( 6+width, 49,68-width, 7, bgColor);
+}
+
+void drawUIRightBar(int width)
+{
+  static int lastWidth = 0;
+  uint16_t barColor = ST7735_WHITE;
+  
+  if(width >= 60) {
+    barColor = ST7735_RED;
+  } else if(width >= 40) {
+    barColor = ST7735_YELLOW;
+  } else if(width <= 5){
+    width = 5;
+    barColor = ST7735_BLUE;
+  }
+
+  //fill min is 0-68
+  //full tft.fillRect(86, 49,68,7, ST7735_RED);
+  //half tft.fillRect(86, 49,70/2,7, ST7735_BLUE);
+  tft.fillRect( 86,  49, width, 7, barColor);
+  tft.fillRect( 86+width, 49,68-width, 7, bgColor);
 }
 
 void drawInitialUI()
