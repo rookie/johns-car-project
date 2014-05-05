@@ -84,12 +84,13 @@ struct values {
    
    uint8_t fix;
    //These might all come over as strings
-   float speed; //Knots
+   float speedKnots; //Knots
+   int speedMPH; //MPH
+   int speedKPH; //KPH
    uint8_t hour;
    uint8_t min;
    uint8_t day;
    uint8_t month;
-   
 };
 struct displayValues {
    char coolantTemp[4];
@@ -135,12 +136,12 @@ void setupGPS()
   // the parser doesn't care about other sentences at this time
   
   // Set the update rate
-  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_5HZ);   // 5 Hz update rate
+  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);   // 1 Hz update rate
   // For the parsing code to work nicely and have time to sort thru the data, and
   // print it out we don't suggest using anything higher than 1 Hz
 
   // Request updates on antenna status, comment out to keep quiet
-  GPS.sendCommand(PGCMD_ANTENNA);
+  GPS.sendCommand(PGCMD_NOANTENNA);
 
   // the nice thing about this code is you can have a timer0 interrupt go off
   // every 1 millisecond, and read data from the GPS for you. that makes the
@@ -241,15 +242,15 @@ void calculateUI()
   sprintf(displayC.outsideTemp, "%3d", 0);  
   sprintf(displayC.insideTemp, "%3d", -40);  
   
-  if (sensorsUpdated.speed != 0) {
+  if (sensorsUpdated.speedKnots != 0) {
     
     //Serial.print("Speed (knots): "); Serial.println(sensorValues.speed);
     //Serial.print("Speed   (mph): "); Serial.println(sensorValues.speed * 1.15078);
     //Serial.print("Speed   (kph): "); Serial.println(sensorValues.speed * 1.852);
-
+    
     //TODO: support 100+ numbers
-    sprintf(displayF.speed, "%2d", (int)((sensorValues.speed * 1.15078) + 0.5)); //mph round up 
-    sprintf(displayC.speed, "%2d", (int)((sensorValues.speed * 1.852) + 0.5)); //kph round up 
+    sprintf(displayF.speed, "%2d", sensorValues.speedMPH); 
+    sprintf(displayC.speed, "%2d", sensorValues.speedKPH); 
   }
   if (sensorsUpdated.min != 0) {  
     sprintf(displayF.time, "%2d:%02d", sensorValues.hour, sensorValues.min);  
@@ -263,7 +264,7 @@ void calculateUI()
 
 void updateUI()
 {
-  if (sensorsUpdated.speed != 0) {  
+  if (sensorsUpdated.speedKnots != 0) {  
     //draw text
     Serial.println(displayF.speed);
     Serial.println(displayC.speed);
@@ -275,8 +276,7 @@ void updateUI()
     tftdrawNumber(displayF.speed[0],  5, 88);
     tftdrawNumber(displayF.speed[1], 46, 88);
     
-    
-    sensorsUpdated.speed = 0;    
+    sensorsUpdated.speedKnots = 0;    
   }
   
   
@@ -364,7 +364,7 @@ void gpsLoop()
   if (timer > millis())  timer = millis();
 
   // approximately every 0.5 seconds or so, print out the current stats
-  if (millis() - timer > 500) { //2000) { 
+  if (millis() - timer > 500) {
     timer = millis(); // reset the timer
     /*
     Serial.print("\nTime: ");
@@ -389,7 +389,7 @@ void gpsLoop()
       Serial.print("Altitude: "); Serial.println(GPS.altitude);
       Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
     }
-    */
+    /**/
     
     if (sensorValues.month != GPS.month || sensorValues.day != GPS.day)
     {
@@ -415,15 +415,15 @@ void gpsLoop()
     sensorValues.fix   = GPS.fix;
     if (GPS.fix){
       
-      if (sensorValues.speed != GPS.speed)
+      if (sensorValues.speedKnots != GPS.speed)
       {
-        sensorValues.speed = GPS.speed;
-        sensorsUpdated.speed = 1;
+        sensorValues.speedKnots = GPS.speed;
+        sensorValues.speedMPH = (int)((sensorValues.speedKnots * 1.15078) + 0.5); //mph round up 
+        sensorValues.speedKPH = (int)((sensorValues.speedKnots * 1.852) + 0.5);  //kph round up 
+ 
+        sensorsUpdated.speedKnots = 1;
       }
     }
-    calculateUI();
-    
-    updateUI();
   }
 }
 
