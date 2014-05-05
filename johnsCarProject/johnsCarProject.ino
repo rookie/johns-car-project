@@ -129,9 +129,9 @@ void setupGPS()
   GPS.begin(9600);
   
   // uncomment this line to turn on RMC (recommended minimum) and GGA (fix data) including altitude
-  GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
+  //GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
   // uncomment this line to turn on only the "minimum recommended" data
-  //GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCONLY);
+  GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCONLY);
   // For parsing data, we don't suggest using anything but either RMC only or RMC+GGA since
   // the parser doesn't care about other sentences at this time
   
@@ -186,9 +186,35 @@ void setupLCD()
 
 void loop() {
   gpsLoop();
+  
+  //Tests
+  //testUISpeed();
+  //testUIBars();
+
+  calculateUI();
+  updateUI();
   delay(100);
 }
 
+void testUIBars()
+{
+  
+}
+
+void testUISpeed()
+{
+  static int speedtest = 0;
+  static int direction = 1;
+  
+  sensorValues.speedMPH = speedtest;
+  sensorsUpdated.speedKnots = 1;
+  speedtest += direction;
+  if(speedtest >= 99 || speedtest <= 0){
+    direction = -direction;
+  }
+  
+  delay(250);
+}
 
 void drawInitialUI()
 {
