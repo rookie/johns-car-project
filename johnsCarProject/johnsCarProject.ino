@@ -296,7 +296,7 @@ void drawUIOutsideTemp()
   drawUILeftBar(width, barColor);
   if(sensorValues.outsideValue <= 32) {
     tft.setCursor( 16, 49);
-    tft.setTextColor(ST7735_BLUE, ST7735_BLUE);
+    tft.setTextColor(ST7735_WHITE, ST7735_WHITE);
     tft.print("*");
     tft.setTextColor(fgColor, bgColor);
   }
@@ -377,7 +377,7 @@ void drawInitialUI()
   tft.setCursor(85, 64);
   tft.print("INSIDE 100F"); //12*6 = 72 (rect is 70)
   
-  
+  tftdrawCoolant(85, 64+8);
 }
 
 void calculateUI()
@@ -639,6 +639,25 @@ void tftdrawNumber(char number, int x, int y)
   }
 }
 
+//16*16
+static unsigned char PROGMEM icon16_coolant[] =
+{ B00000000, B00000000,
+  B00000001, B00000000,
+  B00000001, B11100000,
+  B00000001, B00000000,
+  B00000001, B11100000,
+  B00000001, B00000000,
+  B00000001, B11100000,
+  B00000001, B00000000,
+  B01100011, B10001100,
+  B10011011, B10110011,
+  B00000000, B00000000,
+  B01100110, B01100110,
+  B10011001, B10011001,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000
+};
 
 //32*35 chars
 static unsigned char PROGMEM icon32_num0[] =
@@ -1021,6 +1040,12 @@ static unsigned char PROGMEM icon32_num9[] =
   B00000000, B00000000, B00000000, B01111111,
   B00000000, B00000000, B00000000, B01111111
   };
+
+void tftdrawCoolant(int x, int y)
+{
+  tft.drawBitmap(x, y,  icon16_coolant, 16, 16, fgColor, bgColor);
+}
+
 void tftdrawBlank(int x, int y)
 {
   //tftdraw0( x, y)
