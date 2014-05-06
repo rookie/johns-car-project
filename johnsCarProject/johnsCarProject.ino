@@ -190,17 +190,44 @@ void loop() {
   //Tests
   //testUISpeed();
   //testUIBars();
-
+  testUITemp();
+  
   calculateUI();
   updateUI();
   delay(100);
+}
+
+void testUITemp()
+{
+  //115-275
+  static int coolantTemp = 100;
+  static int direction = 1;
+  
+  coolantTemp += direction;
+  sensorValues.coolantValue = coolantTemp;
+  sensorsUpdated.coolantValue = 1;
+  
+  
+  //32-106
+  static int inOutTemp = 0;
+  
+  inOutTemp += direction;
+  sensorValues.outsideValue = inOutTemp;
+  sensorsUpdated.outsideValue = 1;  
+
+  sensorValues.insideValue = inOutTemp;
+  sensorsUpdated.insideValue = 1;  
+  
+  if(inOutTemp >= 175 || inOutTemp <= -20){
+    direction = -direction;
+  }
 }
 
 void testUIBars()
 {
   static int bartest = 0;
   static int direction = 1;
-  drawUITopBar(bartest);
+  drawUITopBar(bartest, ST7735_RED);
   
   bartest += direction;
   if(bartest >= 148 || bartest <= 0){
@@ -210,7 +237,7 @@ void testUIBars()
   static int smallbartest = 0;
   static int smalldirection = 1;
  
-  drawUILeftBar(smallbartest);
+  drawUILeftBar(smallbartest, ST7735_WHITE);
   drawUIRightBar(smallbartest);
   
   smallbartest += smalldirection;
@@ -236,28 +263,59 @@ void testUISpeed()
   delay(250);
 }
 
-void drawUITopBar(int width)
+void drawUICoolantTemp()
 {
-  static int lastWidth = 0;
-  uint16_t barColor = ST7735_WHITE;
-  //fill min is 0-148
-  //full tft.fillRect( 6,  6,148,13, ST7735_RED);
-  //half tft.fillRect( 6,  6,150/2,13, ST7735_BLUE);
+  uint16_t barColor = fgColor;
   
-  tft.fillRect( 6,  6,width,13, ST7735_RED);
-  tft.fillRect( 6+width,  6,148-width,13, bgColor);
+  if(sensorValues.coolantValue >= 251) {
+    barColor = ST7735_RED;
+  } else if(sensorValues.coolantValue >= 221) {
+    barColor = ST7735_YELLOW;
+  } else if(sensorValues.coolantValue <= 150){
+    barColor = ST7735_BLUE;
+  }
+  int width = map(sensorValues.coolantValue, 105, 260, 0, 148);
+  if(width <= 10) width =  10;
+  if(width > 148) width = 148;
+  drawUITopBar(width, barColor);
+}
+void drawUIOutsideTemp()
+{
+  uint16_t barColor = fgColor;
+  
+  if(sensorValues.outsideValue >= 100) {
+    barColor = ST7735_RED;
+  } else if(sensorValues.outsideValue >= 90) {
+    barColor = ST7735_YELLOW;
+  } else if(sensorValues.outsideValue <= 32){
+    barColor = ST7735_BLUE;
+  }
+  int width = map(sensorValues.outsideValue, 32-5, 105, 0, 68);
+  if(width <= 5) width =  5;
+  if(width > 68) width = 68;
+  drawUILeftBar(width, barColor);
+  if(sensorValues.outsideValue <= 32) {
+    tft.setCursor( 16, 49);
+    tft.setTextColor(ST7735_BLUE, ST7735_BLUE);
+    tft.print("*");
+    tft.setTextColor(fgColor, bgColor);
+  }
 }
 
-void drawUILeftBar(int width)
+void drawUITopBar(int width, uint16_t barColor)
 {
   static int lastWidth = 0;
-  uint16_t barColor = ST7735_WHITE;
+  //fill min is 0-148
+  tft.fillRect( 6, 6, width, 13, barColor);
+  tft.fillRect( 6+width, 6, 148-width, 13, bgColor);
+}
+
+void drawUILeftBar(int width, uint16_t barColor)
+{
+  static int lastWidth = 0;
   //fill min is 0-68
-  //full tft.fillRect( 6, 49,68,7, ST7735_RED);
-  //half tft.fillRect( 6, 49,70/2,7, ST7735_BLUE);
-  
-  tft.fillRect( 6,  49, width, 7, ST7735_RED);
-  tft.fillRect( 6+width, 49,68-width, 7, bgColor);
+  tft.fillRect( 6, 49, width, 7, barColor);
+  tft.fillRect( 6+width, 49, 68-width, 7, bgColor);
 }
 
 void drawUIRightBar(int width)
@@ -324,14 +382,18 @@ void drawInitialUI()
 
 void calculateUI()
 {
-  sprintf(displayF.coolantTemp, "%3d", 212);  
-  sprintf(displayF.outsideTemp, "%3d", 32);  
-  sprintf(displayF.insideTemp, "%3d", -40);  
- 
-  
-  sprintf(displayC.coolantTemp, "%3d", 100);  
-  sprintf(displayC.outsideTemp, "%3d", 0);  
-  sprintf(displayC.insideTemp, "%3d", -40);  
+  if(sensorsUpdated.coolantValue != 0){
+    sprintf(displayF.coolantTemp, "%3d", sensorValues.coolantValue);  
+    sprintf(displayC.coolantTemp, "%3d", 100);  
+  }
+  if(sensorsUpdated.outsideValue != 0){
+    sprintf(displayF.outsideTemp, "%3d", sensorValues.outsideValue);  
+    sprintf(displayC.outsideTemp, "%3d", -40);  
+  }
+  if(sensorsUpdated.insideValue != 0){
+    sprintf(displayF.insideTemp, "%3d", sensorValues.insideValue);  
+    sprintf(displayC.insideTemp, "%3d", 32);  
+  }
   
   if (sensorsUpdated.speedKnots != 0) {
     
@@ -354,7 +416,25 @@ void calculateUI()
 }
 
 void updateUI()
-{
+{ 
+  if(sensorsUpdated.coolantValue != 0){
+    tft.setCursor( 5+15*6, 25);
+    tft.print(displayF.coolantTemp);
+    drawUICoolantTemp();
+    sensorsUpdated.coolantValue = 0;
+  }
+  if(sensorsUpdated.outsideValue != 0){
+    tft.setCursor( 5+8*6, 64);
+    tft.print(displayF.outsideTemp);
+    drawUIOutsideTemp();
+    sensorsUpdated.outsideValue = 0;
+  }
+  if(sensorsUpdated.insideValue != 0){
+    tft.setCursor(85+7*6, 64);
+    tft.print(displayF.insideTemp);
+    sensorsUpdated.insideValue = 0;
+  }
+  
   if (sensorsUpdated.speedKnots != 0) {  
     //draw text
     Serial.println(displayF.speed);
