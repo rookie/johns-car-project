@@ -156,6 +156,8 @@ void printArray()
   int x = 0;
   int y = 0;
    
+  println("Image updated");
+  println("");
   for(y = 0; y < gridHeight; y++)
   { 
     for(x = 0; x < gridWidth/8; x++)
