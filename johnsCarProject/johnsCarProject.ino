@@ -201,12 +201,21 @@ void testUIBars()
   static int bartest = 0;
   static int direction = 1;
   drawUITopBar(bartest);
-  drawUILeftBar(bartest%69);
-  drawUIRightBar(bartest%69);
   
   bartest += direction;
   if(bartest >= 148 || bartest <= 0){
     direction = -direction;
+  }
+  
+  static int smallbartest = 0;
+  static int smalldirection = 1;
+ 
+  drawUILeftBar(smallbartest);
+  drawUIRightBar(smallbartest);
+  
+  smallbartest += smalldirection;
+  if(smallbartest >= 68 || smallbartest <= 0){
+    smalldirection = -smalldirection;
   }
   
   
