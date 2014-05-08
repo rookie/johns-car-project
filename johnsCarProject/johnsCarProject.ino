@@ -18,6 +18,10 @@
 
 //TODO: add string term \0 to UIvalues, somebody will print them someday
 
+#define tempCoolantPin A0
+#define tempOutsidePin A1
+#define tempInsidePin  A2
+
 // For the breakout, you can use any (2 or) 3 pins
 //#define sclk 13
 //#define mosi 11
@@ -186,6 +190,7 @@ void setupLCD()
 
 void loop() {
   gpsLoop();
+  tempReadLoop();
   
   //Tests
   //testUISpeed();
@@ -215,8 +220,8 @@ void testUITemp()
   sensorValues.outsideValue = inOutTemp;
   sensorsUpdated.outsideValue = 1;  
 
-  sensorValues.insideValue = inOutTemp;
-  sensorsUpdated.insideValue = 1;  
+  //sensorValues.insideValue = inOutTemp;
+  //sensorsUpdated.insideValue = 1;  
   
   if(inOutTemp >= 175 || inOutTemp <= -20){
     direction = -direction;
@@ -382,6 +387,7 @@ void drawInitialUI()
 
 void calculateUI()
 {
+  int calculatedTemp = 0;
   if(sensorsUpdated.coolantValue != 0){
     sprintf(displayF.coolantTemp, "%3d", sensorValues.coolantValue);  
     sprintf(displayC.coolantTemp, "%3d", 100);  
@@ -391,7 +397,8 @@ void calculateUI()
     sprintf(displayC.outsideTemp, "%3d", -40);  
   }
   if(sensorsUpdated.insideValue != 0){
-    sprintf(displayF.insideTemp, "%3d", sensorValues.insideValue);  
+    calculatedTemp = ((90000.0 - (100.0 * sensorValues.insideValue)) / 619.0);
+    sprintf(displayF.insideTemp, "%3d", calculatedTemp);  
     sprintf(displayC.insideTemp, "%3d", 32);  
   }
   
@@ -477,6 +484,28 @@ void updateUI()
   
 }
 
+void tempReadLoop()
+{
+  int sensorAnalogValue = analogRead(tempCoolantPin);
+  if (sensorValues.coolantValue != sensorAnalogValue)
+  {
+    sensorValues.coolantValue = sensorAnalogValue;
+    sensorsUpdated.coolantValue = 1;
+  }
+  sensorAnalogValue = analogRead(tempOutsidePin);
+  if (sensorValues.outsideValue != sensorAnalogValue)
+  {
+    sensorValues.outsideValue = sensorAnalogValue;
+    sensorsUpdated.outsideValue = 1;
+  }
+  sensorAnalogValue = analogRead(tempInsidePin);
+  if (sensorValues.insideValue != sensorAnalogValue)
+  {
+    sensorValues.insideValue = sensorAnalogValue;
+    sensorsUpdated.insideValue = 1;
+  }
+  
+}
 
 #pragma mark - GPS Callbacks
 
