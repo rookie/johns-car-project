@@ -402,7 +402,7 @@ void drawInitialUI()
 void calculateUI()
 {
   if(sensorsUpdated.coolantValue != 0){
-    displayF.coolantTempValue = ((55023.0 - 6871.0 * log(sensorValues.coolantValue)) / 100.0);
+    displayF.coolantTempValue = ((69529.0 - 9334.0 * log(sensorValues.coolantValue)) / 100.0);
     sprintf(displayF.coolantTemp, "%3d", displayF.coolantTempValue);  
     sprintf(displayC.coolantTemp, "%3d", 100);  
   }
