@@ -1,26 +1,26 @@
 
 
 
-int gridWidth = 32; //not sure if it works without a multiple of 8
-int gridHeight = 32;
+int gridWidth = 16; //not sure if it works without a multiple of 8
+int gridHeight = 35;
 
 //Speed numbers size
 //int gridWidth = 32; 
 //int gridHeight = 35;
 
-int gridSize = 20;
+int gridSize = 20; 
 int fgColor = 0;
-int bgColor = 255;
+int bgColor = 255; 
 
 void setup() {
+  
   size(gridWidth*gridSize, gridHeight*gridSize);
   //smooth();
     
   background(bgColor);
   
   drawGrid();
-  if(gridWidth == 32 && gridHeight == 35)
-    loadArray(); 
+  
 }
 
 void draw() {
@@ -74,7 +74,7 @@ void drawPixel(int x, int y, int fillColor) {
   rect(x*gridSize, y*gridSize, gridSize, gridSize);
 }
 
-void loadArray()
+void loadArray(int[] bitmap)
 {
   int x = 0;
   int y = 0;
@@ -119,6 +119,8 @@ void printArrayFromScreen()
   int x = 0;
   int y = 0;
    
+  println("Image updated");
+  println("");
   for(y = 0; y < gridHeight; y++)
   { 
     for(x = 0; x < gridWidth/8; x++)
@@ -151,7 +153,7 @@ void printArrayFromScreen()
   }
 }
 
-void printArray()
+void printArray(int[] bitmap) 
 {
   int x = 0;
   int y = 0;
@@ -206,10 +208,64 @@ void drawGrid(){
   }
 }
 
+void loadThermometerInverse()
+{
+  fgColor = 255;
+  bgColor = 0;
+  loadThermometer();
+  fgColor = 0;
+  bgColor = 255; 
+}
+
+void loadThermometer()
+{
+  gridWidth = 16;
+  gridHeight = 35;
+  size(gridWidth*gridSize, gridHeight*gridSize);
+  background(bgColor);
+  loadArray(thermometer);
+}
+
+int[] thermometer = 
+{ B00000011, B11000000,
+  B00000110, B01100000,
+  B00001100, B00110000,
+  B00001100, B00110000,
+  B00001111, B00110000,
+  B00001100, B00110000,
+  B00001100, B00110000,
+  B00001111, B00110000,
+  B00001100, B00110000,
+  B00001100, B00110000,
+  B00001111, B00110000,
+  B00001100, B00110000,
+  B00001100, B00110000,
+  B00001111, B00110000,
+  B00001100, B00110000,
+  B00001100, B00110000,
+  B00001111, B00110000,
+  B00001100, B00110000,
+  B00001100, B00110000,
+  B00001111, B00110000,
+  B00001100, B00110000,
+  B00011100, B00111000,
+  B00111100, B00111100,
+  B01110000, B00001110,
+  B01100000, B00000110,
+  B11100000, B00000111,
+  B11000000, B00000011,
+  B11000000, B00000011,
+  B11100000, B00000111,
+  B01100000, B00000110,
+  B01110000, B00001110,
+  B00111000, B00011100,
+  B00011110, B01111000,
+  B00001111, B11110000,
+  B00000011, B11000000
+};
 
 
-
-int[] bitmap = 
+int[] numberBitmap = 
 //static unsigned char PROGMEM icon32_num2[] =
 { B01111111, B11111111, B11111111, B11111111,
   B11111111, B11111111, B11111111, B11111111,
