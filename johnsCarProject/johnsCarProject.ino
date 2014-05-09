@@ -100,7 +100,10 @@ struct displayValues {
    char coolantTemp[4];
    char outsideTemp[4];
    char insideTemp[4];
-   char speed[3];
+   int16_t coolantTempValue;
+   int16_t outsideTempValue;
+   int16_t insideTempValue;
+   char speed[4];
    char time[6];  //12:02
    char date[6];  //12/13 or 12/12
 };
@@ -195,7 +198,7 @@ void loop() {
   //Tests
   //testUISpeed();
   //testUIBars();
-  testUITemp();
+  //testUITemp();
   
   calculateUI();
   updateUI();
@@ -272,14 +275,14 @@ void drawUICoolantTemp()
 {
   uint16_t barColor = fgColor;
   
-  if(sensorValues.coolantValue >= 251) {
+  if(displayF.coolantTempValue >= 251) {
     barColor = ST7735_RED;
-  } else if(sensorValues.coolantValue >= 221) {
+  } else if(displayF.coolantTempValue >= 221) {
     barColor = ST7735_YELLOW;
-  } else if(sensorValues.coolantValue <= 150){
+  } else if(displayF.coolantTempValue <= 150){
     barColor = ST7735_BLUE;
   }
-  int width = map(sensorValues.coolantValue, 105, 260, 0, 148);
+  int width = map(displayF.coolantTempValue, 105, 260, 0, 148);
   if(width <= 10) width =  10;
   if(width > 148) width = 148;
   drawUITopBar(width, barColor);
@@ -288,18 +291,18 @@ void drawUIOutsideTemp()
 {
   uint16_t barColor = fgColor;
   
-  if(sensorValues.outsideValue >= 100) {
+  if(displayF.outsideTempValue >= 100) {
     barColor = ST7735_RED;
-  } else if(sensorValues.outsideValue >= 90) {
+  } else if(displayF.outsideTempValue >= 90) {
     barColor = ST7735_YELLOW;
-  } else if(sensorValues.outsideValue <= 32){
+  } else if(displayF.outsideTempValue <= 32){
     barColor = ST7735_BLUE;
   }
-  int width = map(sensorValues.outsideValue, 32-5, 105, 0, 68);
+  int width = map(displayF.outsideTempValue, 32-5, 105, 0, 68);
   if(width <= 5) width =  5;
   if(width > 68) width = 68;
   drawUILeftBar(width, barColor);
-  if(sensorValues.outsideValue <= 32) {
+  if(displayF.outsideTempValue <= 32) {
     tft.setCursor( 16, 49);
     tft.setTextColor(ST7735_WHITE, ST7735_WHITE);
     tft.print("*");
@@ -387,18 +390,19 @@ void drawInitialUI()
 
 void calculateUI()
 {
-  int calculatedTemp = 0;
   if(sensorsUpdated.coolantValue != 0){
-    sprintf(displayF.coolantTemp, "%3d", sensorValues.coolantValue);  
+    displayF.coolantTempValue = ((55023.0 - 6871.0 * log(sensorValues.coolantValue)) / 100.0);
+    sprintf(displayF.coolantTemp, "%3d", displayF.coolantTempValue);  
     sprintf(displayC.coolantTemp, "%3d", 100);  
   }
   if(sensorsUpdated.outsideValue != 0){
-    sprintf(displayF.outsideTemp, "%3d", sensorValues.outsideValue);  
+    displayF.outsideTempValue = ((90000.0 - (100.0 * sensorValues.outsideValue)) / 619.0);
+    sprintf(displayF.outsideTemp, "%3d", displayF.outsideTempValue);  
     sprintf(displayC.outsideTemp, "%3d", -40);  
   }
   if(sensorsUpdated.insideValue != 0){
-    calculatedTemp = ((90000.0 - (100.0 * sensorValues.insideValue)) / 619.0);
-    sprintf(displayF.insideTemp, "%3d", calculatedTemp);  
+    displayF.insideTempValue = ((90000.0 - (100.0 * sensorValues.insideValue)) / 619.0);
+    sprintf(displayF.insideTemp, "%3d", displayF.insideTempValue);  
     sprintf(displayC.insideTemp, "%3d", 32);  
   }
   
