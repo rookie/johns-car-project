@@ -198,7 +198,7 @@ void loop() {
   //Tests
   //testUISpeed();
   //testUIBars();
-  //testUITemp();
+  //testUITemp(); //Must comment out calculateUI() to run these
   
   calculateUI();
   updateUI();
@@ -212,7 +212,8 @@ void testUITemp()
   static int direction = 1;
   
   coolantTemp += direction;
-  sensorValues.coolantValue = coolantTemp;
+  displayF.coolantTempValue = coolantTemp;
+  sprintf(displayF.coolantTemp, "%3d", displayF.coolantTempValue);  
   sensorsUpdated.coolantValue = 1;
   
   
@@ -220,11 +221,13 @@ void testUITemp()
   static int inOutTemp = 0;
   
   inOutTemp += direction;
-  sensorValues.outsideValue = inOutTemp;
+  displayF.outsideTempValue = inOutTemp;
+  sprintf(displayF.outsideTemp, "%3d", displayF.outsideTempValue);  
   sensorsUpdated.outsideValue = 1;  
 
-  //sensorValues.insideValue = inOutTemp;
-  //sensorsUpdated.insideValue = 1;  
+  displayF.insideTempValue = inOutTemp;
+  sprintf(displayF.insideTemp, "%3d", displayF.insideTempValue);  
+  sensorsUpdated.insideValue = 1;  
   
   if(inOutTemp >= 175 || inOutTemp <= -20){
     direction = -direction;
@@ -246,7 +249,7 @@ void testUIBars()
   static int smalldirection = 1;
  
   drawUILeftBar(smallbartest, ST7735_WHITE);
-  drawUIRightBar(smallbartest);
+  drawUIRightBar(smallbartest, ST7735_WHITE);
   
   smallbartest += smalldirection;
   if(smallbartest >= 68 || smallbartest <= 0){
@@ -309,7 +312,28 @@ void drawUIOutsideTemp()
     tft.setTextColor(fgColor, bgColor);
   }
 }
-
+void drawUIInsideTemp()
+{
+  uint16_t barColor = fgColor;
+  
+  if(displayF.insideTempValue >= 100) {
+    barColor = ST7735_RED;
+  } else if(displayF.insideTempValue >= 90) {
+    barColor = ST7735_YELLOW;
+  } else if(displayF.insideTempValue <= 32){
+    barColor = ST7735_BLUE;
+  }
+  int width = map(displayF.insideTempValue, 32-5, 105, 0, 68);
+  if(width <= 5) width =  5;
+  if(width > 68) width = 68;
+  drawUIRightBar(width, barColor);
+  if(displayF.insideTempValue <= 32) {
+    tft.setCursor( 96, 49);
+    tft.setTextColor(ST7735_WHITE, ST7735_WHITE);
+    tft.print("*");
+    tft.setTextColor(fgColor, bgColor);
+  }
+}
 void drawUITopBar(int width, uint16_t barColor)
 {
   static int lastWidth = 0;
@@ -326,25 +350,12 @@ void drawUILeftBar(int width, uint16_t barColor)
   tft.fillRect( 6+width, 49, 68-width, 7, bgColor);
 }
 
-void drawUIRightBar(int width)
+void drawUIRightBar(int width, uint16_t barColor)
 {
   static int lastWidth = 0;
-  uint16_t barColor = ST7735_WHITE;
-  
-  if(width >= 60) {
-    barColor = ST7735_RED;
-  } else if(width >= 40) {
-    barColor = ST7735_YELLOW;
-  } else if(width <= 5){
-    width = 5;
-    barColor = ST7735_BLUE;
-  }
-
   //fill min is 0-68
-  //full tft.fillRect(86, 49,68,7, ST7735_RED);
-  //half tft.fillRect(86, 49,70/2,7, ST7735_BLUE);
-  tft.fillRect( 86,  49, width, 7, barColor);
-  tft.fillRect( 86+width, 49,68-width, 7, bgColor);
+  tft.fillRect( 86, 49, width, 7, barColor);
+  tft.fillRect( 86+width, 49, 68-width, 7, bgColor);
 }
 
 void drawInitialUI()
@@ -443,6 +454,7 @@ void updateUI()
   if(sensorsUpdated.insideValue != 0){
     tft.setCursor(85+7*6, 64);
     tft.print(displayF.insideTemp);
+    drawUIInsideTemp();
     sensorsUpdated.insideValue = 0;
   }
   
