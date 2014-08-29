@@ -69,7 +69,7 @@ void updateUI()
     tft.setCursor(5, 77);
     tft.print(displayF.speed);
     
-    
+    //TODO: updating both numbers?
     tftdrawNumber(displayF.speed[0],  5, 88);
     tftdrawNumber(displayF.speed[1], 46, 88);
     
