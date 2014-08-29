@@ -1,4 +1,66 @@
 
+
+/********************
+
+
+Current
++--------------------+
+|                    |
+|         A          |
++--------------------+
+|   |            |   |
+| F |            | B |
++--------------------+
+|                    |
+|         G          |
++--------------------+
+|   |            |   |
+| E |            | C |
++--------------------+
+|                    |
+|         D          |
++--------------------+
+
+
+Proposed
++--------------------+
+|   |            |   |
+| A |     B      | C |
++--------------------+
+|   |            |   |
+| L |            | D |
++--------------------+
+|   |            |   |
+| K |     M      | E |
++--------------------+
+|   |            |   |
+| J |            | F |
++--------------------+
+|   |            |   |
+| I |     H      | G |
++--------------------+
+
+
+
+
+
+
+
+
+
+
+
+
+*******************/
+
+
+
+
+
+
+
+
+
 #define speedFontA 0x00000001
 #define speedFontB 0x00000002
 #define speedFontC 0x00000004
@@ -15,9 +77,9 @@
 #define speedFontL 0x00000800
 
 #define speedFontM 0x00001000
-#define speedFontN 0x00002000
-#define speedFontO 0x00004000
-#define speedFontP 0x00008000
+//#define speedFontN 0x00002000
+//#define speedFontO 0x00004000
+//#define speedFontP 0x00008000
 
 #define number0 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF )
 #define number1 (             speedFontB | speedFontC )

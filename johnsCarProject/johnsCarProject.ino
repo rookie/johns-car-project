@@ -138,6 +138,9 @@ void setup(void) {
 
   setupGPS();
 
+  //DEBUG
+  drawDebugUI();
+
   drawInitialUI();
 
   Serial.println("done");
@@ -269,7 +272,7 @@ void testUISpeed()
   sensorValues.speedMPH = speedtest;
   sensorsUpdated.speedKnots = 1;
   speedtest += direction;
-  if(speedtest >= 199 || speedtest <= 0){
+  if(speedtest >= 110 || speedtest <= 0){
     direction = -direction;
   }
   

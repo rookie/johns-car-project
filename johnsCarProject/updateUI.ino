@@ -1,43 +1,108 @@
 
+
+
+// Bounding boxes for debug
+void drawDebugUI()
+{
+  
+  //Horiz lines
+  tft.fillRect(  10, 135, 300,  3, fgColor);
+  tft.fillRect(  10,  48, 300,  3, fgColor);
+  //Engine temp Bar
+  tft.drawRect(   0,   0, 320, 40, fgColor);
+  //Out Therm
+  tft.drawRect(   6,  57,  32, 70, fgColor);
+  //Out Num
+  tft.drawRect(  40,  65,  16, 27, fgColor);
+  tft.drawRect(  60,  65,  16, 27, fgColor);
+  tft.drawRect(  80,  65,  16, 27, fgColor);
+  //Out degree
+  tft.drawRect( 102,  65,  12, 12, fgColor);
+  //Out F
+  tft.drawRect( 120,  65,  16, 27, fgColor);
+  //Out Text
+  tft.drawRect(  41, 105, 123, 16, fgColor);
+
+  //Snowflake
+  tft.drawRect( 144,  65,  30, 30, fgColor);
+  
+  //In Therm
+  tft.drawRect( 179,  57,  32, 70, fgColor); //TODO: update john, 179
+  //In Num
+  tft.drawRect( 212,  65,  16, 27, fgColor); //TODO: update john, 65
+  tft.drawRect( 232,  65,  16, 27, fgColor); //TODO: update john, 65
+  tft.drawRect( 252,  65,  16, 27, fgColor); //TODO: update john, 65, 252
+  //In degree
+  tft.drawRect( 274,  65,  12, 12, fgColor);
+  //In F
+  tft.drawRect( 292,  65,  16, 27, fgColor);
+  //In Text
+  tft.drawRect( 219, 105,  89, 16, fgColor);
+  
+
+  //Speed
+  tft.drawRect( 0, 148,  80, 92, fgColor);
+  tft.drawRect( 89, 148,  80, 92, fgColor);
+
+  //MPH
+  tft.drawRect( 177, 150, 29, 89, fgColor);
+
+  //GPS stuff  
+
+  for(;;);
+  
+}
+
+
 void drawInitialUI()
 {
-  //Temp boxes
-  tft.drawRect( 5,  5, 150, 15, fgColor);
-  tft.fillRect( 5,  5,150/2,15, fgColor);
+  /*
+  //Horiz lines
+  tft.fillRect( 10, 135,300, 3, fgColor);
+  tft.fillRect( 10,  48,300, 3, fgColor);
   
-  tft.drawRect( 5, 48,  70,  9, fgColor);
-  tft.fillRect( 5, 48,70/2,  9, fgColor);
-  
-  tft.drawRect(85, 48,  70,  9, fgColor);
-  tft.fillRect(85, 48,70/2,  9, fgColor);
+  //Engine temp Bar
+  tft.drawRect( 0,  0,  320, 40, fgColor);
+  tft.fillRect( 0,  0,320/2, 40, fgColor);
 
-  //Box for speed
-  //tft.drawRect( 5, 88,  75, 35, fgColor);
-  
-  uint16_t time = millis();
-  tftdrawNumber(8, 5, 88);
-  time = millis() - time;
-  Serial.print("Draw 8 time: ");
-  Serial.println(time, DEC);
-  
-  time = millis();
-  tftdrawNumber(9, 46, 88);
-  time = millis() - time;
-  Serial.print("Draw 9 time: ");
-  Serial.println(time, DEC);
+
+
+
+
+  //Outside temp therm
+  tft.drawRect(   6, 57, 32, 70, fgColor);
   
   
+  
+  //Inside temp therm
+  
+  
+  
+  
+  //Out Therm
+  //In Therm
+  tft.drawRect( 182, 57 , 32, 70, fgColor);
+  
+  tft.setTextSize(2);
   //Strings
   tft.setCursor( 5, 25);
-  tft.print("ENGINE COOLANT 285F"); //20*6 = 120 (rect is 150)
+  //tft.print("ENGINE COOLANT 285F"); //20*6 = 120 (rect is 150)
 
-  tft.setCursor( 5, 64);
-  tft.print("OUTSIDE 100F"); //13*6 = 78 (rect is 70)
+  tft.setCursor( 41, 105);
+  tft.print("OUTSIDE"); //13*6 = 78 (rect is 70)
   
-  tft.setCursor(85, 64);
-  tft.print("INSIDE 100F"); //12*6 = 72 (rect is 70)
+  tft.setCursor( 219, 105);
+  tft.print("INSIDE"); //12*6 = 72 (rect is 70)
   
-  tftdrawCoolant(85, 64+8);
+  //MPH
+  //
+  
+  //Speed
+  //tft.drawRect( 5, 88,  75, 35, fgColor);
+    */
+    
+    
+  
 }
 
 void updateUI()
@@ -45,6 +110,7 @@ void updateUI()
   static char oldSpeed0 = ' ';
   static char oldSpeed1 = ' ';
   
+  /*
   if(sensorsUpdated.coolantValue != 0){
     tft.setCursor( 5+15*6, 25);
     tft.print(displayF.coolantTemp);
@@ -63,15 +129,17 @@ void updateUI()
     drawUIInsideTemp();
     sensorsUpdated.insideValue = 0;
   }
+  */
   
   if (sensorsUpdated.speedKnots != 0) {  
     //draw text
     Serial.println(displayF.speed);
     Serial.println(displayC.speed);
 
-    tft.setCursor(5, 77);
-    tft.print(displayF.speed);
-    
+    //DEBUG
+    tft.setCursor(170, 140);
+    //tft.print(displayF.speed);
+        
     tftdrawNumberFrom(displayF.speed[0], oldSpeed0,  0, 148);
     tftdrawNumberFrom(displayF.speed[1], oldSpeed1, 89, 148);
     
@@ -81,7 +149,7 @@ void updateUI()
     sensorsUpdated.speedKnots = 0;    
   }
   
-  
+  /*
   if (sensorsUpdated.min != 0) {  
     //draw text
     Serial.println(displayF.time);
@@ -105,7 +173,7 @@ void updateUI()
     sensorsUpdated.month = 0;
     sensorsUpdated.day = 0;
   }
-  
+  */
 }
 
 

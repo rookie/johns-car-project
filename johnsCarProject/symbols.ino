@@ -1,7 +1,7 @@
 
 
 //16*16
-static unsigned char PROGMEM icon16_coolant[] =
+const unsigned char PROGMEM icon16_coolant[] =
 { B00000000, B00000000,
   B00000001, B00000000,
   B00000001, B11100000,
@@ -21,7 +21,7 @@ static unsigned char PROGMEM icon16_coolant[] =
 };
 
 //16x35
-static unsigned char PROGMEM icon16_thermometer[] =
+const unsigned char PROGMEM icon16_thermometer[] =
 { B00000011, B11000000,
   B00000110, B01100000,
   B00001100, B00110000,
@@ -58,7 +58,7 @@ static unsigned char PROGMEM icon16_thermometer[] =
   B00001111, B11110000,
   B00000011, B11000000
 };
-static unsigned char PROGMEM icon16_thermometerFill[] =
+const unsigned char PROGMEM icon16_thermometerFill[] =
 { B00000000, B00000000,
   B00000001, B10000000,
   B00000011, B11000000,
