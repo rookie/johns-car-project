@@ -35,8 +35,10 @@
 //#define dc   8
 //#define rst  0  // you can also connect this to the Arduino reset
 
+#include <Time.h>
 #include <Adafruit_GFX.h>    // Core graphics library
-#include <Adafruit_ST7735.h> // Hardware-specific library
+#include <Adafruit_ILI9340.h> // 2.2inch
+
 #include <SPI.h>
 //GPS
 #include <Adafruit_GPS.h>
@@ -54,8 +56,14 @@
 // (for UNO thats sclk = 13 and sid = 11) and pin 10 must be
 // an output. This is much faster - also required if you want
 // to use the microSD card (see the image drawing example)
-Adafruit_ST7735 tft = Adafruit_ST7735(cs, dc, rst);
-float p = 3.1415926;
+
+Adafruit_ILI9340 tft = Adafruit_ILI9340(cs, dc, rst);
+
+#define COLOR_WHITE ILI9340_WHITE
+#define COLOR_BLACK ILI9340_BLACK
+#define COLOR_RED   ILI9340_RED  
+#define COLOR_YELLOW ILI9340_YELLOW
+#define COLOR_BLUE ILI9340_BLUE
 
 //GPS
 // If using software serial, keep these lines enabled
@@ -78,8 +86,8 @@ boolean usingInterrupt = false;
 void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
 
 
-uint16_t fgColor = ST7735_WHITE;
-uint16_t bgColor = ST7735_BLACK;
+uint16_t fgColor = COLOR_WHITE;
+uint16_t bgColor = COLOR_BLACK;
 
 struct values {
    uint16_t coolantValue;
@@ -120,7 +128,13 @@ void setup(void) {
   setupLCD();
 
   tft.setRotation(1);
+  //fgColor = tft.Color565(255, 165, 0);
+  //fgColor = tft.Color565(255, 127, 0);
+  //Serial.print("fgColor: 0x");
+  //Serial.println(fgColor, HEX);
+  
   tft.setTextColor(fgColor, bgColor);
+  
 
   setupGPS();
 
@@ -163,20 +177,8 @@ void setupGPS()
 
 void setupLCD()
 {
-  // Our supplier changed the 1.8" display slightly after Jan 10, 2012
-  // so that the alignment of the TFT had to be shifted by a few pixels
-  // this just means the init code is slightly different. Check the
-  // color of the tab to see which init code to try. If the display is
-  // cut off or has extra 'random' pixels on the top & left, try the
-  // other option!
-  // If you are seeing red and green color inversion, use Black Tab
 
-  // If your TFT's plastic wrap has a Black Tab, use the following:
-  tft.initR(INITR_BLACKTAB);   // initialize a ST7735S chip, black tab
-  // If your TFT's plastic wrap has a Red Tab, use the following:
-  //tft.initR(INITR_REDTAB);   // initialize a ST7735R chip, red tab
-  // If your TFT's plastic wrap has a Green Tab, use the following:
-  //tft.initR(INITR_GREENTAB); // initialize a ST7735R chip, green tab
+  tft.begin();
 
   Serial.println("init");
 
@@ -196,7 +198,7 @@ void loop() {
   tempReadLoop();
   
   //Tests
-  //testUISpeed();
+  testUISpeed();
   //testUIBars();
   //testUITemp(); //Must comment out calculateUI() to run these
   
@@ -238,7 +240,7 @@ void testUIBars()
 {
   static int bartest = 0;
   static int direction = 1;
-  drawUITopBar(bartest, ST7735_RED);
+  drawUITopBar(bartest, COLOR_RED);
   
   bartest += direction;
   if(bartest >= 148 || bartest <= 0){
@@ -248,8 +250,8 @@ void testUIBars()
   static int smallbartest = 0;
   static int smalldirection = 1;
  
-  drawUILeftBar(smallbartest, ST7735_WHITE);
-  drawUIRightBar(smallbartest, ST7735_WHITE);
+  drawUILeftBar(smallbartest, COLOR_WHITE);
+  drawUIRightBar(smallbartest, COLOR_WHITE);
   
   smallbartest += smalldirection;
   if(smallbartest >= 68 || smallbartest <= 0){
@@ -272,131 +274,6 @@ void testUISpeed()
   }
   
   delay(250);
-}
-
-void drawUICoolantTemp()
-{
-  uint16_t barColor = fgColor;
-  
-  if(displayF.coolantTempValue >= 251) {
-    barColor = ST7735_RED;
-  } else if(displayF.coolantTempValue >= 221) {
-    barColor = ST7735_YELLOW;
-  } else if(displayF.coolantTempValue <= 150){
-    barColor = ST7735_BLUE;
-  }
-  int width = map(displayF.coolantTempValue, 105, 260, 0, 148);
-  if(width <= 10) width =  10;
-  if(width > 148) width = 148;
-  drawUITopBar(width, barColor);
-}
-void drawUIOutsideTemp()
-{
-  uint16_t barColor = fgColor;
-  
-  if(displayF.outsideTempValue >= 100) {
-    barColor = ST7735_RED;
-  } else if(displayF.outsideTempValue >= 90) {
-    barColor = ST7735_YELLOW;
-  } else if(displayF.outsideTempValue <= 32){
-    barColor = ST7735_BLUE;
-  }
-  int width = map(displayF.outsideTempValue, 32-5, 105, 0, 68);
-  if(width <= 5) width =  5;
-  if(width > 68) width = 68;
-  drawUILeftBar(width, barColor);
-  if(displayF.outsideTempValue <= 32) {
-    tft.setCursor( 16, 49);
-    tft.setTextColor(ST7735_WHITE, ST7735_WHITE);
-    tft.print("*");
-    tft.setTextColor(fgColor, bgColor);
-  }
-}
-void drawUIInsideTemp()
-{
-  uint16_t barColor = fgColor;
-  
-  if(displayF.insideTempValue >= 100) {
-    barColor = ST7735_RED;
-  } else if(displayF.insideTempValue >= 90) {
-    barColor = ST7735_YELLOW;
-  } else if(displayF.insideTempValue <= 32){
-    barColor = ST7735_BLUE;
-  }
-  int width = map(displayF.insideTempValue, 32-5, 105, 0, 68);
-  if(width <= 5) width =  5;
-  if(width > 68) width = 68;
-  drawUIRightBar(width, barColor);
-  if(displayF.insideTempValue <= 32) {
-    tft.setCursor( 96, 49);
-    tft.setTextColor(ST7735_WHITE, ST7735_WHITE);
-    tft.print("*");
-    tft.setTextColor(fgColor, bgColor);
-  }
-}
-void drawUITopBar(int width, uint16_t barColor)
-{
-  static int lastWidth = 0;
-  //fill min is 0-148
-  tft.fillRect( 6, 6, width, 13, barColor);
-  tft.fillRect( 6+width, 6, 148-width, 13, bgColor);
-}
-
-void drawUILeftBar(int width, uint16_t barColor)
-{
-  static int lastWidth = 0;
-  //fill min is 0-68
-  tft.fillRect( 6, 49, width, 7, barColor);
-  tft.fillRect( 6+width, 49, 68-width, 7, bgColor);
-}
-
-void drawUIRightBar(int width, uint16_t barColor)
-{
-  static int lastWidth = 0;
-  //fill min is 0-68
-  tft.fillRect( 86, 49, width, 7, barColor);
-  tft.fillRect( 86+width, 49, 68-width, 7, bgColor);
-}
-
-void drawInitialUI()
-{
-  //Temp boxes
-  tft.drawRect( 5,  5, 150, 15, fgColor);
-  tft.fillRect( 5,  5,150/2,15, fgColor);
-  
-  tft.drawRect( 5, 48,  70,  9, fgColor);
-  tft.fillRect( 5, 48,70/2,  9, fgColor);
-  
-  tft.drawRect(85, 48,  70,  9, fgColor);
-  tft.fillRect(85, 48,70/2,  9, fgColor);
-
-  //Box for speed
-  //tft.drawRect( 5, 88,  75, 35, fgColor);
-  
-  uint16_t time = millis();
-  tftdrawNumber(8, 5, 88);
-  time = millis() - time;
-  Serial.print("Draw 8 time: ");
-  Serial.println(time, DEC);
-  
-  time = millis();
-  tftdrawNumber(9, 46, 88);
-  time = millis() - time;
-  Serial.print("Draw 9 time: ");
-  Serial.println(time, DEC);
-  
-  
-  //Strings
-  tft.setCursor( 5, 25);
-  tft.print("ENGINE COOLANT 285F"); //20*6 = 120 (rect is 150)
-
-  tft.setCursor( 5, 64);
-  tft.print("OUTSIDE 100F"); //13*6 = 78 (rect is 70)
-  
-  tft.setCursor(85, 64);
-  tft.print("INSIDE 100F"); //12*6 = 72 (rect is 70)
-  
-  tftdrawCoolant(85, 64+8);
 }
 
 void calculateUI()
@@ -435,69 +312,6 @@ void calculateUI()
     sprintf(displayF.date, "%2d/%2d", sensorValues.month, sensorValues.day);  
     sprintf(displayC.date, "%2d/%2d", sensorValues.day, sensorValues.month);  
   }
-}
-
-void updateUI()
-{ 
-  if(sensorsUpdated.coolantValue != 0){
-    tft.setCursor( 5+15*6, 25);
-    tft.print(displayF.coolantTemp);
-    drawUICoolantTemp();
-    sensorsUpdated.coolantValue = 0;
-  }
-  if(sensorsUpdated.outsideValue != 0){
-    tft.setCursor( 5+8*6, 64);
-    tft.print(displayF.outsideTemp);
-    drawUIOutsideTemp();
-    sensorsUpdated.outsideValue = 0;
-  }
-  if(sensorsUpdated.insideValue != 0){
-    tft.setCursor(85+7*6, 64);
-    tft.print(displayF.insideTemp);
-    drawUIInsideTemp();
-    sensorsUpdated.insideValue = 0;
-  }
-  
-  if (sensorsUpdated.speedKnots != 0) {  
-    //draw text
-    Serial.println(displayF.speed);
-    Serial.println(displayC.speed);
-
-    tft.setCursor(5, 77);
-    tft.print(displayF.speed);
-    
-    
-    tftdrawNumber(displayF.speed[0],  5, 88);
-    tftdrawNumber(displayF.speed[1], 46, 88);
-    
-    sensorsUpdated.speedKnots = 0;    
-  }
-  
-  
-  if (sensorsUpdated.min != 0) {  
-    //draw text
-    Serial.println(displayF.time);
-    Serial.println(displayC.time);
-
-    tft.setCursor(107, 100);
-    tft.print(displayF.time);
-    
-    sensorsUpdated.hour = 0;
-    sensorsUpdated.min = 0;    
-  }
-  
-  if (sensorsUpdated.day != 0) {  
-    //draw text
-    Serial.println(displayF.date);
-    Serial.println(displayC.date);
-
-    tft.setCursor(107, 115);
-    tft.print(displayF.date);
-
-    sensorsUpdated.month = 0;
-    sensorsUpdated.day = 0;
-  }
-  
 }
 
 void tempReadLoop()
@@ -607,25 +421,53 @@ void gpsLoop()
     }
     /**/
     
-    if (sensorValues.month != GPS.month || sensorValues.day != GPS.day)
+    if (sensorValues.min != GPS.minute)
     {
-      sensorValues.month = GPS.month;
-      sensorValues.day   = GPS.day;
+      //TODO: this is UTC time
+      setTime(GPS.hour, GPS.minute, 0, GPS.day, GPS.month, GPS.year);
+      Serial.println(GPS.year);
+      time_t rawTime = now();
+      /*
+      Serial.println("================");
+      Serial.println(hour());
+      Serial.println(minute());
+      Serial.println("----------------");
+      Serial.println(hour(rawTime));
+      Serial.println(minute(rawTime));
+      Serial.println("==--------------");
+      */
+      adjustTime(-7*60*60);
+      rawTime = now();
+      /*
+      Serial.println("----------------");
+      Serial.println(hour());
+      Serial.println(minute());
+      Serial.println("----------------");
+      Serial.println(hour(rawTime));
+      Serial.println(minute(rawTime));
+      Serial.println("");
+      */
+    
+    if (sensorValues.month != month(rawTime) || sensorValues.day != day(rawTime))
+    {
+      sensorValues.month = month(rawTime);
+      sensorValues.day   = day(rawTime);
       
       sensorsUpdated.month = 1;
       sensorsUpdated.day = 1;
     }
 
-    //TODO: this is UTC time
-    if (sensorValues.hour != GPS.hour || sensorValues.min != GPS.minute)
+    if (sensorValues.hour != hour(rawTime) || sensorValues.min != minute(rawTime))
     {
-      sensorValues.hour  = GPS.hour;
-      sensorValues.min   = GPS.minute;
+      sensorValues.hour  = hour(rawTime);
+      sensorValues.min   = minute(rawTime);
+      if (sensorValues.hour > 12) sensorValues.hour -= 12;
       
       sensorsUpdated.hour = 1;
       sensorsUpdated.min = 1;
     }
     
+    }
     //TODO: Just assume this is always updating?
     //TODO: Should at least calculate mph values to compare
     sensorValues.fix   = GPS.fix;
