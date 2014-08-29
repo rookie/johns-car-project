@@ -301,6 +301,8 @@ void calculateUI()
     //Serial.print("Speed   (kph): "); Serial.println(sensorValues.speed * 1.852);
     
     //TODO: support 100+ numbers
+    if(sensorValues.speedMPH > 99) sensorValues.speedMPH = 99;
+    if(sensorValues.speedKPH > 99) sensorValues.speedKPH = 99;
     sprintf(displayF.speed, "%2d", sensorValues.speedMPH); 
     sprintf(displayC.speed, "%2d", sensorValues.speedKPH); 
   }

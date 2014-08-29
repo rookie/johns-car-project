@@ -19,6 +19,44 @@
 #define speedFontO 0x00004000
 #define speedFontP 0x00008000
 
+#define number0 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF )
+#define number1 (             speedFontB | speedFontC )
+#define number2 (speedFontA | speedFontB |              speedFontD | speedFontE |              speedFontG)
+#define number3 (speedFontA | speedFontB | speedFontC | speedFontD |                           speedFontG)
+#define number4 (             speedFontB | speedFontC |                           speedFontF | speedFontG)
+#define number5 (speedFontA |              speedFontC | speedFontD |              speedFontF | speedFontG)
+#define number6 (speedFontA |              speedFontC | speedFontD | speedFontE | speedFontF | speedFontG)
+#define number7 (speedFontA | speedFontB | speedFontC )
+#define number8 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG)
+#define number9 (speedFontA | speedFontB | speedFontC | speedFontD |              speedFontF | speedFontG)
+
+
+void drawSevenDiff(int x, int y, int fromOld, int toNew)
+{
+  int same = fromOld & toNew;
+  int deleted = fromOld ^ same;
+  int added = toNew ^ same;
+  
+  //delete old ones
+  drawSeven(deleted, x, y, bgColor);
+  
+  //add new ones
+  drawSeven(added, x, y, fgColor);
+  
+  
+}
+
+void drawSeven(int segments, int x, int y, uint16_t color)
+{
+  if(segments & speedFontA) tft.fillRect(    x,    y, 80, 21, color);
+  if(segments & speedFontB) tft.fillRect( x+62, y+21, 18, 17, color);
+  if(segments & speedFontC) tft.fillRect( x+62, y+54, 18, 17, color);
+  if(segments & speedFontD) tft.fillRect(    x, y+71, 80, 21, color);
+  if(segments & speedFontE) tft.fillRect(    x, y+54, 16, 17, color);
+  if(segments & speedFontF) tft.fillRect(    x, y+21, 16, 17, color);
+  if(segments & speedFontG) tft.fillRect(    x, y+38, 80, 16, color);
+  
+}
 
 void tftdrawSeven(int x, int y, int a, int b, int c, int d, int e, int f, int g)
 {
@@ -110,6 +148,62 @@ void printthings()
 }
 */
 
+int segmentMaskForNumber(char number)
+{
+  int mask = 0;
+  switch(number){
+    case '0': 
+      mask = number0;
+    break; 
+    case '1': 
+      mask = number1;
+    break; 
+    case '2': 
+      mask = number2;
+    break; 
+    case '3': 
+      mask = number3;
+    break; 
+    case '4': 
+      mask = number4;
+    break; 
+    case '5': 
+      mask = number5;
+    break; 
+    case '6': 
+      mask = number6;
+    break; 
+    case '7': 
+      mask = number7;
+    break; 
+    case '8': 
+      mask = number8;
+    break; 
+    case '9': 
+      mask = number9;
+    break; 
+    default:
+      mask = 0;
+    break;
+  }
+    
+  return mask;
+}
+
+
+void tftdrawNumberFrom(char number, char oldNumber, int x, int y)
+{
+  int oldNumberMask = segmentMaskForNumber(oldNumber);
+  int numberMask = segmentMaskForNumber(number);
+  
+  if(oldNumberMask == 0)
+  { 
+      tftdrawBlank(x, y);
+  }
+  
+  drawSevenDiff(x, y, oldNumberMask, numberMask);
+    
+}
 
 void tftdrawNumber(char number, int x, int y)
 {  

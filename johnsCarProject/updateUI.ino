@@ -42,6 +42,9 @@ void drawInitialUI()
 
 void updateUI()
 { 
+  static char oldSpeed0 = ' ';
+  static char oldSpeed1 = ' ';
+  
   if(sensorsUpdated.coolantValue != 0){
     tft.setCursor( 5+15*6, 25);
     tft.print(displayF.coolantTemp);
@@ -69,9 +72,11 @@ void updateUI()
     tft.setCursor(5, 77);
     tft.print(displayF.speed);
     
-    //TODO: updating both numbers?
-    tftdrawNumber(displayF.speed[0],  5, 88);
-    tftdrawNumber(displayF.speed[1], 46, 88);
+    tftdrawNumberFrom(displayF.speed[0], oldSpeed0,  0, 148);
+    tftdrawNumberFrom(displayF.speed[1], oldSpeed1, 89, 148);
+    
+    oldSpeed0 = displayF.speed[0];
+    oldSpeed1 = displayF.speed[1];
     
     sensorsUpdated.speedKnots = 0;    
   }
