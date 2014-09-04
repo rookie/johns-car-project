@@ -49,6 +49,10 @@ void drawDebugUI()
 
   //GPS stuff  
 
+    
+  //drawInitilUI();
+  
+
   for(;;);
   
 }
@@ -56,7 +60,6 @@ void drawDebugUI()
 
 void drawInitialUI()
 {
-  /*
   //Horiz lines
   tft.fillRect( 10, 135,300, 3, fgColor);
   tft.fillRect( 10,  48,300, 3, fgColor);
@@ -65,43 +68,29 @@ void drawInitialUI()
   tft.drawRect( 0,  0,  320, 40, fgColor);
   tft.fillRect( 0,  0,320/2, 40, fgColor);
 
+  tftdrawCoolant( 1, 1);
 
+  //Outside
+  tftdrawTherm(   6,  57);
+  tftdrawDegree(102,  65);
+  tftdrawF(120,  65);
+  tftdrawOutside(41, 105);
 
+  //Snowflake
+  //tftdrawSnowflake(144, 65);
+  
+  //Inside 
+  tftdrawTherm( 179,  57);
+  tftdrawDegree(274,  65);
+  tftdrawF(292,  65);
+  tftdrawInside(219, 105);
 
-
-  //Outside temp therm
-  tft.drawRect(   6, 57, 32, 70, fgColor);
-  
-  
-  
-  //Inside temp therm
-  
-  
-  
-  
-  //Out Therm
-  //In Therm
-  tft.drawRect( 182, 57 , 32, 70, fgColor);
-  
-  tft.setTextSize(2);
-  //Strings
-  tft.setCursor( 5, 25);
-  //tft.print("ENGINE COOLANT 285F"); //20*6 = 120 (rect is 150)
-
-  tft.setCursor( 41, 105);
-  tft.print("OUTSIDE"); //13*6 = 78 (rect is 70)
-  
-  tft.setCursor( 219, 105);
-  tft.print("INSIDE"); //12*6 = 72 (rect is 70)
-  
   //MPH
-  //
-  
-  //Speed
-  //tft.drawRect( 5, 88,  75, 35, fgColor);
-    */
+  tftdrawMph(177, 150);
     
-    
+  //Time/date box
+  tft.drawRect( 208, 157, 107, 66, fgColor);
+  tft.drawRect( 209, 158, 105, 64, fgColor);
   
 }
 
@@ -110,26 +99,25 @@ void updateUI()
   static char oldSpeed0 = ' ';
   static char oldSpeed1 = ' ';
   
-  /*
+  
   if(sensorsUpdated.coolantValue != 0){
-    tft.setCursor( 5+15*6, 25);
-    tft.print(displayF.coolantTemp);
-    drawUICoolantTemp();
+    //drawUICoolantTemp();
     sensorsUpdated.coolantValue = 0;
   }
   if(sensorsUpdated.outsideValue != 0){
-    tft.setCursor( 5+8*6, 64);
-    tft.print(displayF.outsideTemp);
-    drawUIOutsideTemp();
+    tftdrawTextSmall(40, 65, displayF.outsideTemp[0]);
+    tftdrawTextSmall(60, 65, displayF.outsideTemp[1]);
+    tftdrawTextSmall(80, 65, displayF.outsideTemp[2]);
+    //drawUIOutsideTemp();
     sensorsUpdated.outsideValue = 0;
   }
   if(sensorsUpdated.insideValue != 0){
-    tft.setCursor(85+7*6, 64);
-    tft.print(displayF.insideTemp);
-    drawUIInsideTemp();
+    tftdrawTextSmall(212, 65, displayF.insideTemp[0]);
+    tftdrawTextSmall(232, 65, displayF.insideTemp[1]);
+    tftdrawTextSmall(252, 65, displayF.insideTemp[2]);
+    //drawUIInsideTemp();
     sensorsUpdated.insideValue = 0;
   }
-  */
   
   if (sensorsUpdated.speedKnots != 0) {  
     //draw text
@@ -149,14 +137,18 @@ void updateUI()
     sensorsUpdated.speedKnots = 0;    
   }
   
-  /*
+  
   if (sensorsUpdated.min != 0) {  
     //draw text
     Serial.println(displayF.time);
     Serial.println(displayC.time);
-
-    tft.setCursor(107, 100);
-    tft.print(displayF.time);
+    
+    //hours
+    tftdrawTextSmall(214, 166, displayF.time[0]); //166 was 175
+    tftdrawTextSmall(234, 166, displayF.time[1]);
+    //mins
+    tftdrawTextSmall(274, 166, displayF.time[3]);
+    tftdrawTextSmall(294, 166, displayF.time[4]);
     
     sensorsUpdated.hour = 0;
     sensorsUpdated.min = 0;    
@@ -167,13 +159,25 @@ void updateUI()
     Serial.println(displayF.date);
     Serial.println(displayC.date);
 
-    tft.setCursor(107, 115);
+    tft.setTextSize(2);
+    tft.setCursor(230, 200);
     tft.print(displayF.date);
+    tft.setTextSize(1);
+
+    /*
+    //month
+    tftdrawTextSmall(214, 203, displayF.date[0]);
+    tftdrawTextSmall(234, 203, displayF.date[1]);
+    //day
+    tftdrawTextSmall(274, 203, displayF.date[3]);
+    tftdrawTextSmall(294, 203, displayF.date[4]);
+    */
+    
 
     sensorsUpdated.month = 0;
     sensorsUpdated.day = 0;
   }
-  */
+  
 }
 
 

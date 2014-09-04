@@ -139,7 +139,7 @@ void setup(void) {
   setupGPS();
 
   //DEBUG
-  drawDebugUI();
+  //drawDebugUI();
 
   drawInitialUI();
 
@@ -201,7 +201,7 @@ void loop() {
   tempReadLoop();
   
   //Tests
-  testUISpeed();
+  //testUISpeed();
   //testUIBars();
   //testUITemp(); //Must comment out calculateUI() to run these
   
