@@ -102,16 +102,24 @@ void updateUI()
   static char oldSpeed0 = ' ';
   static char oldSpeed1 = ' ';
   static int displaySnowFlake = 0;
+  
+  int oldFgColor = fgColor;
 
   if (sensorsUpdated.coolantValue != 0) {
     drawUICoolantTemp();
     sensorsUpdated.coolantValue = 0;
   }
   if (sensorsUpdated.outsideValue != 0) {
+    
+    if (displayF.outsideTempValue <= 0) {
+      fgColor = COLOR_BLUE;
+    }
+    
     tftdrawTextSmall(40, 65, displayF.outsideTemp[0]);
     tftdrawTextSmall(60, 65, displayF.outsideTemp[1]);
     tftdrawTextSmall(80, 65, displayF.outsideTemp[2]);
     //drawUIOutsideTemp();
+    fgColor = oldFgColor;
 
     //Draw or delete snowflake
     if (displayF.outsideTempValue <= 32)
@@ -131,10 +139,17 @@ void updateUI()
     sensorsUpdated.outsideValue = 0;
   }
   if (sensorsUpdated.insideValue != 0) {
+    
+    if (displayF.outsideTempValue <= 0) {
+      fgColor = COLOR_BLUE;
+    }
+
     tftdrawTextSmall(212, 65, displayF.insideTemp[0]);
     tftdrawTextSmall(232, 65, displayF.insideTemp[1]);
     tftdrawTextSmall(252, 65, displayF.insideTemp[2]);
     //drawUIInsideTemp();
+    fgColor = oldFgColor;
+    
     sensorsUpdated.insideValue = 0;
   }
 
@@ -203,11 +218,15 @@ void updateUI()
 //HACK: lots of hack going on here
 void drawUICoolantTemp()
 {
+  static int textLocation = 58;
+  
   uint16_t barColor = fgColor;
 
+  //save the bg and fg color, they will be changing temporarily
   uint16_t saveFgColor = fgColor;
   uint16_t saveBgColor = bgColor;
 
+  //Color the bar accordingly
   if (displayF.coolantTempValue >= 251) {
     barColor = COLOR_RED;
   } else if (displayF.coolantTempValue >= 221) {
@@ -215,11 +234,28 @@ void drawUICoolantTemp()
   } else if (displayF.coolantTempValue <= 150) {
     barColor = COLOR_BLUE;
   }
+  //Map the value to the width of the bar
   int width = map(displayF.coolantTempValue, 105, 260, 0, 318);
+  //Truncate the ends to min/max
   if (width <= 10) width =  10;
   if (width > 318) width = 318;
-  drawUITopBar(width, barColor);
+  
+  //Position the text to the left if 165 or over, to the right if under.
+  //Force update bar drawing if changes
+  if(displayF.coolantTempValue < 165 && textLocation != 250) //TODO: update john, 250 alternate
+  {
+    textLocation = 250;
+    drawUITopBar(width, barColor, true);
+  } else 
+  if(displayF.coolantTempValue >= 165 && textLocation != 58)
+  {
+    textLocation = 58;
+    drawUITopBar(width, barColor, true);
+  } else {
+    drawUITopBar(width, barColor, false);
+  }
 
+  //Make sure the text is the correct color based on placement and bar color
   switch(barColor) {
     case COLOR_YELLOW:
       fgColor = bgColor;
@@ -229,18 +265,21 @@ void drawUICoolantTemp()
       bgColor = barColor;
     break;
     case COLOR_WHITE:
-      fgColor = bgColor;
-      bgColor = barColor;
+      if(textLocation == 58)
+      {
+        fgColor = bgColor;
+        bgColor = barColor;
+      }
     break;
   }
 
   tftdrawCoolant(7, 1);
 
-  tftdrawTextSmall(58,  5, displayF.coolantTemp[0]);
-  tftdrawTextSmall(78,  5, displayF.coolantTemp[1]);
-  tftdrawTextSmall(98,  5, displayF.coolantTemp[2]);
+  tftdrawTextSmall(textLocation +  0,  7, displayF.coolantTemp[0]); //TODO: update john, 5
+  tftdrawTextSmall(textLocation + 20,  7, displayF.coolantTemp[1]); //TODO: update john, 5
+  tftdrawTextSmall(textLocation + 40,  7, displayF.coolantTemp[2]); //TODO: update john, 5
 
-
+  //Pop the saved fg and bg colors back
   fgColor = saveFgColor;
   bgColor = saveBgColor;
 
@@ -294,19 +333,30 @@ void drawUIInsideTemp()
 
 void drawUITopBar(int width, uint16_t barColor)
 {
+  drawUITopBar(width, barColor, false);
+}
+
+void drawUITopBar(int width, uint16_t barColor, boolean forceUpdate)
+{
   static int lastWidth = -1;
   static uint16_t lastBarColor = -1;
   
+  //If the color changes we have to redraw all of it.
   if (lastBarColor != barColor) {
     lastWidth = -1; //Redraw all 
   }
   
+  if (forceUpdate) {
+    lastWidth = -1; //Redraw all
+  }
+  //Dont need to draw anything if width doesnt change
   if (lastWidth == width) return;
   
-  //fill min is 0-318
+  //Check if we need to redraw all
   if (lastWidth == -1) {
     tft.fillRect( 1, 1, width, 38, barColor);
     tft.fillRect( 1 + width, 1, 318 - width, 38, bgColor);
+  //Else, only redraw what we add or remove
   } else {
     if (lastWidth < width) {    
       tft.fillRect( 1 + lastWidth, 1, width - lastWidth, 38, barColor);
@@ -315,7 +365,7 @@ void drawUITopBar(int width, uint16_t barColor)
     }
   }
   
-  
+  //Save width and color for next time
   lastWidth = width;
   lastBarColor = barColor;
 }
