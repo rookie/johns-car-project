@@ -47,6 +47,30 @@ const unsigned char PROGMEM icon_f[] =
   B11000000, B00000000,
 };
 
+//8x19
+const unsigned char PROGMEM icon_colon[] =
+{
+  B00111100,
+  B01111110,
+  B11111111,
+  B11111111,
+  B11111111,
+  B11111111,
+  B01111110,
+  B00111100,
+  B00000000,
+  B00000000,
+  B00000000,
+  B00111100,
+  B01111110,
+  B11111111,
+  B11111111,
+  B11111111,
+  B11111111,
+  B01111110,
+  B00111100,
+};
+
 //16x27
 const unsigned char PROGMEM icon_small0[] =
 {
@@ -376,6 +400,10 @@ void tftdrawDegree(int x, int y)
 void tftdrawF(int x, int y)
 {
   tft.drawBitmap(x, y,  icon_f, 16, 27, fgColor);
+}
+void tftdrawColon(int x, int y)
+{
+  tft.drawBitmap(x, y,  icon_colon, 8, 19, fgColor);
 }
 
 

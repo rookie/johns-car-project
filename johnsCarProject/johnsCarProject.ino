@@ -246,15 +246,15 @@ void testUIBars()
   drawUITopBar(bartest, COLOR_RED);
   
   bartest += direction;
-  if(bartest >= 148 || bartest <= 0){
+  if(bartest >= 318 || bartest <= 0){
     direction = -direction;
   }
   
   static int smallbartest = 0;
   static int smalldirection = 1;
  
-  drawUILeftBar(smallbartest, COLOR_WHITE);
-  drawUIRightBar(smallbartest, COLOR_WHITE);
+  //drawUILeftBar(smallbartest, COLOR_WHITE);
+  //drawUIRightBar(smallbartest, COLOR_WHITE);
   
   smallbartest += smalldirection;
   if(smallbartest >= 68 || smallbartest <= 0){
