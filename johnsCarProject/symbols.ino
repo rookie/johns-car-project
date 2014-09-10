@@ -409,9 +409,8 @@ void tftdrawSnowflake(int x, int y)
   tft.drawBitmap(x, y,  icon_snowflake, 32, 30, fgColor);
 }
 
-void tftdrawCoolant(int x, int y)
+void tftdrawCoolant(int x, int y, uint16_t color)
 {
-  tft.drawBitmap(x, y,  icon_coolant, 40, 39, fgColor);
+  tft.drawBitmap(x, y,  icon_coolant, 40, 39, color);
 }
-
 

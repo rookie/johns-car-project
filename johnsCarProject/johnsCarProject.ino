@@ -18,6 +18,8 @@
 
 //TODO: add string term \0 to UIvalues, somebody will print them someday
 
+//#define DEMO_MODE
+
 #define tempCoolantPin A0
 #define tempOutsidePin A1
 #define tempInsidePin  A2
@@ -201,11 +203,19 @@ void loop() {
   tempReadLoop();
   
   //Tests
-  //testUISpeed();
   //testUIBars();
-  //testUITemp(); //Must comment out calculateUI() to run these
   
+#ifdef DEMO_MODE
+  testUISpeed();
+  testUIDateTime();
+#endif
+
   calculateUI();
+  
+#ifdef DEMO_MODE
+  testUITemp(); //Must run after calculateUI()
+#endif
+
   updateUI();
   delay(100);
 }
@@ -276,7 +286,39 @@ void testUISpeed()
     direction = -direction;
   }
   
-  delay(250);
+  //delay(250);
+}
+
+void testUIDateTime()
+{
+  static int dateMonth = 0;
+  static int dateDay   = 0;
+  static int timeHour  = 0;
+  static int timeMin   = 0;
+  
+  
+  dateMonth++;
+  dateDay++;
+  timeHour++;
+  timeMin++;
+  
+  if(dateMonth > 12) dateMonth = 1;
+  if(dateDay   > 31) dateDay = 1;
+  if(timeHour  > 12) timeHour = 1;
+  if(timeMin   > 59) timeMin = 0;
+  
+  
+  
+  sensorValues.month = dateMonth;
+  sensorValues.day   = dateDay;
+  sensorValues.hour  = timeHour;
+  sensorValues.min   = timeMin;
+  
+  sensorsUpdated.month = 1;
+  sensorsUpdated.day = 1;
+  sensorsUpdated.hour = 1;
+  sensorsUpdated.min = 1;
+  
 }
 
 void calculateUI()
