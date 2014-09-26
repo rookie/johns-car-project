@@ -213,9 +213,34 @@ void tftdrawNumberFrom(char number, char oldNumber, int x, int y)
       tftdrawBlank(x, y);
   }
   
+  //Remove flag on previous 1,4
+  if (oldNumber == '1'){
+    tweak1(x, y, bgColor);
+  }
+  if (oldNumber == '4'){
+    tweak4(x, y, bgColor);
+  }
+  
   drawSevenDiff(x, y, oldNumberMask, numberMask);
+   
+  //Add flag on 1,4
+  if (number == '1'){
+    tweak1(x, y, fgColor);
+  } 
+  if (number == '4'){
+    tweak4(x, y, fgColor);
+  }
     
 }
 
 
+void tweak1(int x, int y, int color)
+{
+  tft.fillRect( x+59, y, 3, 21, color);
+}
+
+void tweak4(int x, int y, int color)
+{
+  tft.fillRect( x+16, y, 3, 21, color);
+}
 
