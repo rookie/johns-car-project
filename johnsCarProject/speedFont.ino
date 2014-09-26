@@ -76,21 +76,21 @@ Proposed
 #define speedFontK 0x00000400
 #define speedFontL 0x00000800
 
-#define speedFontM 0x00001000
+//#define speedFontM 0x00001000
 //#define speedFontN 0x00002000
 //#define speedFontO 0x00004000
 //#define speedFontP 0x00008000
 
-#define number0 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF )
-#define number1 (             speedFontB | speedFontC )
-#define number2 (speedFontA | speedFontB |              speedFontD | speedFontE |              speedFontG)
-#define number3 (speedFontA | speedFontB | speedFontC | speedFontD |                           speedFontG)
-#define number4 (             speedFontB | speedFontC |                           speedFontF | speedFontG)
-#define number5 (speedFontA |              speedFontC | speedFontD |              speedFontF | speedFontG)
-#define number6 (speedFontA |              speedFontC | speedFontD | speedFontE | speedFontF | speedFontG)
-#define number7 (speedFontA | speedFontB | speedFontC )
-#define number8 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG)
-#define number9 (speedFontA | speedFontB | speedFontC | speedFontD |              speedFontF | speedFontG)
+#define number0 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG | speedFontH | speedFontI | speedFontJ | speedFontK)
+#define number1 (                          speedFontC | speedFontD | speedFontE | speedFontF | speedFontG                                                                 )
+#define number2 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE |              speedFontG | speedFontH | speedFontI | speedFontJ |              speedFontL) //John: K segment was wrong
+#define number3 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG | speedFontH |                                        speedFontL)
+#define number4 (speedFontA |              speedFontC | speedFontD | speedFontE | speedFontF | speedFontG |                           speedFontJ | speedFontK | speedFontL)
+#define number5 (speedFontA | speedFontB | speedFontC |              speedFontE | speedFontF | speedFontG | speedFontH |              speedFontJ | speedFontK | speedFontL)
+#define number6 (speedFontA | speedFontB | speedFontC |              speedFontE | speedFontF | speedFontG | speedFontH | speedFontI | speedFontJ | speedFontK | speedFontL)
+#define number7 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG                                                                 )
+#define number8 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG | speedFontH | speedFontI | speedFontJ | speedFontK | speedFontL)
+#define number9 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG | speedFontH |              speedFontJ | speedFontK | speedFontL)
 
 
 void drawSevenDiff(int x, int y, int fromOld, int toNew)
@@ -110,82 +110,25 @@ void drawSevenDiff(int x, int y, int fromOld, int toNew)
 
 void drawSeven(int segments, int x, int y, uint16_t color)
 {
-  if(segments & speedFontA) tft.fillRect(    x,    y, 80, 21, color);
-  if(segments & speedFontB) tft.fillRect( x+62, y+21, 18, 17, color);
-  if(segments & speedFontC) tft.fillRect( x+62, y+54, 18, 17, color);
-  if(segments & speedFontD) tft.fillRect(    x, y+71, 80, 21, color);
-  if(segments & speedFontE) tft.fillRect(    x, y+54, 16, 17, color);
-  if(segments & speedFontF) tft.fillRect(    x, y+21, 16, 17, color);
-  if(segments & speedFontG) tft.fillRect(    x, y+38, 80, 16, color);
+  if(segments & speedFontA) tft.fillRect(    x,    y, 16, 21, color);
+  if(segments & speedFontB) tft.fillRect( x+16,    y, 46, 21, color);
+  if(segments & speedFontC) tft.fillRect( x+62,    y, 18, 21, color);
+  if(segments & speedFontD) tft.fillRect( x+62, y+21, 18, 17, color);
+  if(segments & speedFontE) tft.fillRect( x+62, y+38, 18, 16, color);
+  if(segments & speedFontF) tft.fillRect( x+62, y+54, 18, 17, color);
+  if(segments & speedFontG) tft.fillRect( x+62, y+71, 18, 21, color);
+  
+  if(segments & speedFontH) tft.fillRect(    x, y+71, 62, 21, color);
+  if(segments & speedFontI) tft.fillRect(    x, y+54, 16, 17, color);
+  if(segments & speedFontJ) tft.fillRect(    x, y+38, 16, 16, color);
+  if(segments & speedFontK) tft.fillRect(    x, y+21, 16, 17, color);
+  if(segments & speedFontL) tft.fillRect( x+16, y+38, 46, 16, color);
   
 }
-
-void tftdrawSeven(int x, int y, int a, int b, int c, int d, int e, int f, int g)
-{
-  //Do yo math
-  if(a) tft.fillRect(    x,    y, 80, 21, fgColor);
-  if(b) tft.fillRect( x+62, y+21, 18, 17, fgColor);
-  if(c) tft.fillRect( x+62, y+54, 18, 17, fgColor);
-  if(d) tft.fillRect(    x, y+71, 80, 21, fgColor);
-  if(e) tft.fillRect(    x, y+54, 16, 17, fgColor);
-  if(f) tft.fillRect(    x, y+21, 16, 17, fgColor);
-  if(g) tft.fillRect(    x, y+38, 80, 16, fgColor);
-}
-
 
 void tftdrawBlank(int x, int y)
 {
   tft.fillRect( x, y, 80, 92, bgColor);
-}
-
-void tftdraw0(int x, int y)
-{
-  tftdrawSeven(x, y, 1,1,1,1,1,1,0);
-}
-
-void tftdraw1(int x, int y)
-{
-  tft.fillRect( x+62, y, 18, 92, fgColor);
-}
-
-void tftdraw2(int x, int y)
-{
-  tftdrawSeven(x, y, 1,1,0,1,1,0,1);
-}
-
-void tftdraw3(int x, int y)
-{
-  tftdrawSeven(x, y, 1,1,1,1,0,0,1);
-}
-
-void tftdraw4(int x, int y)
-{
-  tftdrawSeven(x, y, 0,1,1,0,0,1,1);
-}
-
-void tftdraw5(int x, int y)
-{
-  tftdrawSeven(x, y, 1,0,1,1,0,1,1);
-}
-
-void tftdraw6(int x, int y)
-{
-  tftdrawSeven(x, y, 1,0,1,1,1,1,1);
-}
-
-void tftdraw7(int x, int y)
-{
-  tftdrawSeven(x, y, 1,1,1,0,0,0,0);
-}
-
-void tftdraw8(int x, int y)
-{
-  tftdrawSeven(x, y, 1,1,1,1,1,1,1);
-}
-
-void tftdraw9(int x, int y)
-{
-  tftdrawSeven(x, y, 1,1,1,1,0,1,1);
 }
 
 /*
@@ -267,47 +210,5 @@ void tftdrawNumberFrom(char number, char oldNumber, int x, int y)
     
 }
 
-void tftdrawNumber(char number, int x, int y)
-{  
-  tftdrawBlank(x, y);
-    
-  switch(number){
-    case '0': 
-      tftdraw0(x, y);
-    break; 
-    case '1': 
-      tftdraw1(x, y);
-    break; 
-    case '2': 
-      tftdraw2(x, y);
-    break; 
-    case '3': 
-      tftdraw3(x, y);
-    break; 
-    case '4': 
-      tftdraw1(x, y);
-      tftdraw4(x, y);
-    break; 
-    case '5': 
-      tftdraw5(x, y);
-    break; 
-    case '6': 
-      tftdraw6(x, y);
-    break; 
-    case '7': 
-      tftdraw1(x, y);
-      tftdraw7(x, y);
-    break; 
-    case '8': 
-      tftdraw8(x, y);
-    break; 
-    case '9': 
-      tftdraw9(x, y);
-    break; 
-    default:
-      tftdrawBlank(x, y);
-    break;
-  }
-}
 
 
