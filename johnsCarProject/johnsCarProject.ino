@@ -233,7 +233,7 @@ void testUITemp()
   
   
   //32-106
-  static int inOutTemp = 0;
+  static int inOutTemp = -19;
   
   inOutTemp += direction;
   displayF.outsideTempValue = inOutTemp;

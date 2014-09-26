@@ -1,3 +1,6 @@
+
+
+
 //16x12
 const unsigned char PROGMEM icon_degree[] =
 {
@@ -14,6 +17,39 @@ const unsigned char PROGMEM icon_degree[] =
   B00111111, B11000000,
   B00011111, B10000000,
 };
+
+//16x27
+const unsigned char PROGMEM icon_negative[] =
+{
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00011111, B11111110,
+  B00111111, B11111100,
+  B01111111, B11111000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+  B00000000, B00000000,
+};
+
 
 //16x27
 const unsigned char PROGMEM icon_f[] =
@@ -391,7 +427,7 @@ B00111111, B11111100,
 B00011111, B11111000,
 };
 
-
+//Symbols
 
 void tftdrawDegree(int x, int y)
 {
@@ -405,11 +441,16 @@ void tftdrawColon(int x, int y)
 {
   tft.drawBitmap(x, y,  icon_colon, 8, 19, fgColor);
 }
-
-
 void tftdrawSmallBlank(int x, int y)
 {
   tft.fillRect( x, y, 16, 27, bgColor);
+}
+
+
+//Characters
+void tftdrawNegative(int x, int y)
+{
+  tft.drawBitmap(x, y,  icon_negative, 16, 27, fgColor, bgColor);
 }
 
 void tftdrawSmall0(int x, int y)
@@ -494,6 +535,9 @@ void tftdrawTextSmall(int x, int y, char c)
     break;
     case '9':
       tftdrawSmall9(x, y);
+    break;
+    case '-':
+      tftdrawNegative(x, y);
     break;
     default:
       tftdrawSmallBlank(x, y);

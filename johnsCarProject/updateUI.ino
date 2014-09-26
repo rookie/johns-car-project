@@ -111,10 +111,6 @@ void updateUI()
   }
   if (sensorsUpdated.outsideValue != 0) {
 
-    if (displayF.outsideTempValue <= 0) {
-      fgColor = COLOR_BLUE;
-    }
-
     tftdrawTextSmall(40, 65, displayF.outsideTemp[0]);
     tftdrawTextSmall(60, 65, displayF.outsideTemp[1]);
     tftdrawTextSmall(80, 65, displayF.outsideTemp[2]);
@@ -139,10 +135,6 @@ void updateUI()
     sensorsUpdated.outsideValue = 0;
   }
   if (sensorsUpdated.insideValue != 0) {
-
-    if (displayF.outsideTempValue <= 0) {
-      fgColor = COLOR_BLUE;
-    }
 
     tftdrawTextSmall(212, 65, displayF.insideTemp[0]);
     tftdrawTextSmall(232, 65, displayF.insideTemp[1]);
