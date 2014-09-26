@@ -76,22 +76,21 @@ Proposed
 #define speedFontK 0x00000400
 #define speedFontL 0x00000800
 
-//#define speedFontM 0x00001000
+#define speedFontM 0x00001000
 //#define speedFontN 0x00002000
 //#define speedFontO 0x00004000
 //#define speedFontP 0x00008000
 
-#define number0 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG | speedFontH | speedFontI | speedFontJ | speedFontK)
-#define number1 (                          speedFontC | speedFontD | speedFontE | speedFontF | speedFontG                                                                 )
-#define number2 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE |              speedFontG | speedFontH | speedFontI | speedFontJ |              speedFontL) //John: K segment was wrong
-#define number3 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG | speedFontH |                                        speedFontL)
-#define number4 (speedFontA |              speedFontC | speedFontD | speedFontE | speedFontF | speedFontG |                           speedFontJ | speedFontK | speedFontL)
-#define number5 (speedFontA | speedFontB | speedFontC |              speedFontE | speedFontF | speedFontG | speedFontH |              speedFontJ | speedFontK | speedFontL)
-#define number6 (speedFontA | speedFontB | speedFontC |              speedFontE | speedFontF | speedFontG | speedFontH | speedFontI | speedFontJ | speedFontK | speedFontL)
-#define number7 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG                                                                 )
-#define number8 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG | speedFontH | speedFontI | speedFontJ | speedFontK | speedFontL)
-#define number9 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG | speedFontH |              speedFontJ | speedFontK | speedFontL)
-
+#define number0 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG | speedFontH | speedFontI | speedFontJ | speedFontK |              speedFontM)
+#define number1 (                          speedFontC | speedFontD | speedFontE | speedFontF | speedFontG                                                                              )
+#define number2 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE |              speedFontG | speedFontH | speedFontI | speedFontJ | speedFontK | speedFontL)
+#define number3 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG | speedFontH | speedFontI |              speedFontK | speedFontL             )
+#define number4 (speedFontA |              speedFontC | speedFontD | speedFontE | speedFontF | speedFontG |                                        speedFontK | speedFontL | speedFontM)
+#define number5 (speedFontA | speedFontB | speedFontC |              speedFontE | speedFontF | speedFontG | speedFontH | speedFontI |              speedFontK | speedFontL | speedFontM)
+#define number6 (speedFontA | speedFontB | speedFontC |              speedFontE | speedFontF | speedFontG | speedFontH | speedFontI | speedFontJ | speedFontK | speedFontL | speedFontM)
+#define number7 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG                                                                              )
+#define number8 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG | speedFontH | speedFontI | speedFontJ | speedFontK | speedFontL | speedFontM)
+#define number9 (speedFontA | speedFontB | speedFontC | speedFontD | speedFontE | speedFontF | speedFontG | speedFontH | speedFontI |              speedFontK | speedFontL | speedFontM)
 
 void drawSevenDiff(int x, int y, int fromOld, int toNew)
 {
@@ -110,26 +109,29 @@ void drawSevenDiff(int x, int y, int fromOld, int toNew)
 
 void drawSeven(int segments, int x, int y, uint16_t color)
 {
-  if(segments & speedFontA) tft.fillRect(    x,    y, 16, 21, color);
+  if(segments & speedFontA) tft.fillRect(    x,    y, 16, 24, color);
   if(segments & speedFontB) tft.fillRect( x+16,    y, 46, 21, color);
-  if(segments & speedFontC) tft.fillRect( x+62,    y, 18, 21, color);
-  if(segments & speedFontD) tft.fillRect( x+62, y+21, 18, 17, color);
+  if(segments & speedFontC) tft.fillRect( x+62,    y, 18, 24, color);
+  if(segments & speedFontD) tft.fillRect( x+62, y+24, 18, 14, color);
   if(segments & speedFontE) tft.fillRect( x+62, y+38, 18, 16, color);
-  if(segments & speedFontF) tft.fillRect( x+62, y+54, 18, 17, color);
-  if(segments & speedFontG) tft.fillRect( x+62, y+71, 18, 21, color);
+  if(segments & speedFontF) tft.fillRect( x+62, y+54, 18, 14, color);
+  if(segments & speedFontG) tft.fillRect( x+62, y+68, 18, 24, color);
   
-  if(segments & speedFontH) tft.fillRect(    x, y+71, 62, 21, color);
-  if(segments & speedFontI) tft.fillRect(    x, y+54, 16, 17, color);
-  if(segments & speedFontJ) tft.fillRect(    x, y+38, 16, 16, color);
-  if(segments & speedFontK) tft.fillRect(    x, y+21, 16, 17, color);
+  if(segments & speedFontH) tft.fillRect( x+16, y+71, 46, 21, color);
+  if(segments & speedFontI) tft.fillRect(    x, y+68, 16, 24, color);
+  if(segments & speedFontJ) tft.fillRect(    x, y+54, 16, 14, color);
+  if(segments & speedFontK) tft.fillRect(    x, y+38, 16, 16, color);
   if(segments & speedFontL) tft.fillRect( x+16, y+38, 46, 16, color);
+  
+  if(segments & speedFontM) tft.fillRect(    x, y+24, 16, 14, color);
+  
   
   //Dashes
   if(segments & speedFontD) tft.fillRect( x+62, y+21+15, 4, 2, bgColor);
   if(segments & speedFontF) tft.fillRect( x+62, y+54, 4, 2, bgColor);
   
-  if(segments & speedFontI) tft.fillRect(    x+12, y+54, 4, 2, bgColor);
-  if(segments & speedFontK) tft.fillRect(    x+12, y+21+15, 4, 2, bgColor);
+  if(segments & speedFontJ) tft.fillRect(    x+12, y+54, 4, 2, bgColor);
+  if(segments & speedFontM) tft.fillRect(    x+12, y+21+15, 4, 2, bgColor);
   
 }
 
