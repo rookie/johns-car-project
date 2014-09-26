@@ -124,6 +124,13 @@ void drawSeven(int segments, int x, int y, uint16_t color)
   if(segments & speedFontK) tft.fillRect(    x, y+21, 16, 17, color);
   if(segments & speedFontL) tft.fillRect( x+16, y+38, 46, 16, color);
   
+  //Dashes
+  if(segments & speedFontD) tft.fillRect( x+62, y+21+15, 4, 2, bgColor);
+  if(segments & speedFontF) tft.fillRect( x+62, y+54, 4, 2, bgColor);
+  
+  if(segments & speedFontI) tft.fillRect(    x+12, y+54, 4, 2, bgColor);
+  if(segments & speedFontK) tft.fillRect(    x+12, y+21+15, 4, 2, bgColor);
+  
 }
 
 void tftdrawBlank(int x, int y)
