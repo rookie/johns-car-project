@@ -38,28 +38,21 @@
 //#define rst  0  // you can also connect this to the Arduino reset
 
 #include <Time.h>
-#include <Adafruit_GFX.h>    // Core graphics library
-#include <Adafruit_ILI9340.h> // 2.2inch
+
+//#include <Adafruit_GFX.h>    // Core graphics library
+//#include <Adafruit_ILI9340.h> // 2.2inch
+//Adafruit_ILI9340 tft = Adafruit_ILI9340(cs, dc, rst);
+
+#include <PDQ_GFX.h>				// PDQ: Core graphics library
+#include "PDQ_ILI9340_config.h"			// PDQ: ST7735 pins and other setup for this sketch
+#include <PDQ_ILI9340.h>			// PDQ: Hardware-specific driver library
+PDQ_ILI9340 tft;				// PDQ: create LCD object (using pins in "PDQ_ST7735_config.h")
+
 
 #include <SPI.h>
 //GPS
 #include <Adafruit_GPS.h>
 #include <SoftwareSerial.h>
-
-#if defined(__SAM3X8E__)
-    #undef __FlashStringHelper::F(string_literal)
-    #define F(string_literal) string_literal
-#endif
-
-// Option 1: use any pins but a little slower
-//Adafruit_ST7735 tft = Adafruit_ST7735(cs, dc, mosi, sclk, rst);
-
-// Option 2: must use the hardware SPI pins
-// (for UNO thats sclk = 13 and sid = 11) and pin 10 must be
-// an output. This is much faster - also required if you want
-// to use the microSD card (see the image drawing example)
-
-Adafruit_ILI9340 tft = Adafruit_ILI9340(cs, dc, rst);
 
 #define COLOR_WHITE ILI9340_WHITE
 #define COLOR_BLACK ILI9340_BLACK
@@ -182,8 +175,19 @@ void setupGPS()
 
 void setupLCD()
 {
+  
+  //HACK: new stuff from GFX library, should probably be in library
+#if defined(ILI9340_RST_PIN)
+  FastPin<ILI9340_RST_PIN>::setOutput();
+  FastPin<ILI9340_RST_PIN>::hi();
+  FastPin<ILI9340_RST_PIN>::lo();
+  delay(1);
+  FastPin<ILI9340_RST_PIN>::hi();
+#endif
 
   tft.begin();
+  //HACK: new stuff from GFX library, should probably be in library
+  SPI.setClockDivider(SPI_CLOCK_DIV2);	// 8 MHz (full! speed!) [1 byte every 18 cycles]
 
   Serial.println("init");
 
