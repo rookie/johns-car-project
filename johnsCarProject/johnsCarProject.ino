@@ -83,6 +83,8 @@ void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
 
 uint16_t fgColor = COLOR_WHITE;
 uint16_t bgColor = COLOR_BLACK;
+typedef enum {IMPERIAL, METRIC, NONE} displayMode_t;
+displayMode_t displayMode = IMPERIAL;
 
 struct values {
    uint16_t coolantValue;
@@ -327,20 +329,26 @@ void testUIDateTime()
 
 void calculateUI()
 {
+  int celsius = 0;
+  
+  //The plus 4 is to minimize rounding errors (half of 9 = 4.5)
   if(sensorsUpdated.coolantValue != 0){
     displayF.coolantTempValue = ((69529.0 - 9334.0 * log(sensorValues.coolantValue)) / 100.0);
     sprintf(displayF.coolantTemp, "%3d", displayF.coolantTempValue);  
-    sprintf(displayC.coolantTemp, "%3d", 100);  
+    celsius = ((displayF.coolantTempValue - 32)*5+4)/9;
+    sprintf(displayC.coolantTemp, "%3d", celsius);  
   }
   if(sensorsUpdated.outsideValue != 0){
     displayF.outsideTempValue = ((90000.0 - (100.0 * sensorValues.outsideValue)) / 619.0);
-    sprintf(displayF.outsideTemp, "%3d", displayF.outsideTempValue);  
-    sprintf(displayC.outsideTemp, "%3d", -40);  
+    sprintf(displayF.outsideTemp, "%3d", displayF.outsideTempValue); 
+    celsius = ((displayF.outsideTempValue - 32)*5+4)/9; 
+    sprintf(displayC.outsideTemp, "%3d", celsius);  
   }
   if(sensorsUpdated.insideValue != 0){
     displayF.insideTempValue = ((90000.0 - (100.0 * sensorValues.insideValue)) / 619.0);
     sprintf(displayF.insideTemp, "%3d", displayF.insideTempValue);  
-    sprintf(displayC.insideTemp, "%3d", 32);  
+    celsius = ((displayF.insideTempValue - 32)*5+4)/9;
+    sprintf(displayC.insideTemp, "%3d", celsius);
   }
   
   if (sensorsUpdated.speedKnots != 0) {

@@ -73,7 +73,11 @@ void drawInitialUI()
   //Outside
   tftdrawTherm(   6,  57);
   tftdrawDegree(102,  65);
-  tftdrawF(120,  65);
+  if(displayMode == METRIC) {
+    tftdrawC(120,  65);
+  } else {
+    tftdrawF(120,  65);
+  }
   tftdrawOutside(41, 105);
 
   //Snowflake
@@ -82,12 +86,20 @@ void drawInitialUI()
   //Inside
   tftdrawTherm( 179,  57);
   tftdrawDegree(274,  65);
-  tftdrawF(292,  65);
+  if(displayMode == METRIC) {
+    tftdrawC(292,  65);
+  } else {
+    tftdrawF(292,  65);
+  }
   tftdrawInside(219, 105);
 
   //MPH
-  tftdrawMph(177, 150);
-
+  if(displayMode == METRIC){
+    tftdrawKph(177, 150);
+  } else {    
+    tftdrawMph(177, 150);
+  }
+  
   //Time/date box
   tft.drawRect( 208, 157, 107, 66, fgColor);
   tft.drawRect( 209, 158, 105, 64, fgColor);
@@ -111,9 +123,15 @@ void updateUI()
   }
   if (sensorsUpdated.outsideValue != 0) {
 
-    tftdrawTextSmall(40, 65, displayF.outsideTemp[0]);
-    tftdrawTextSmall(60, 65, displayF.outsideTemp[1]);
-    tftdrawTextSmall(80, 65, displayF.outsideTemp[2]);
+    if (displayMode == METRIC) {
+      tftdrawTextSmall(40, 65, displayC.outsideTemp[0]);
+      tftdrawTextSmall(60, 65, displayC.outsideTemp[1]);
+      tftdrawTextSmall(80, 65, displayC.outsideTemp[2]);
+    } else {
+      tftdrawTextSmall(40, 65, displayF.outsideTemp[0]);
+      tftdrawTextSmall(60, 65, displayF.outsideTemp[1]);
+      tftdrawTextSmall(80, 65, displayF.outsideTemp[2]);
+    }
     //drawUIOutsideTemp();
     fgColor = oldFgColor;
 
@@ -136,9 +154,15 @@ void updateUI()
   }
   if (sensorsUpdated.insideValue != 0) {
 
-    tftdrawTextSmall(212, 65, displayF.insideTemp[0]);
-    tftdrawTextSmall(232, 65, displayF.insideTemp[1]);
-    tftdrawTextSmall(252, 65, displayF.insideTemp[2]);
+    if (displayMode == METRIC) {
+      tftdrawTextSmall(212, 65, displayC.insideTemp[0]);
+      tftdrawTextSmall(232, 65, displayC.insideTemp[1]);
+      tftdrawTextSmall(252, 65, displayC.insideTemp[2]);
+    } else {
+      tftdrawTextSmall(212, 65, displayF.insideTemp[0]);
+      tftdrawTextSmall(232, 65, displayF.insideTemp[1]);
+      tftdrawTextSmall(252, 65, displayF.insideTemp[2]);
+    }
     //drawUIInsideTemp();
     fgColor = oldFgColor;
 
@@ -153,12 +177,18 @@ void updateUI()
     //DEBUG
     tft.setCursor(170, 140);
     //tft.print(displayF.speed);
-
-    tftdrawNumberFrom(displayF.speed[0], oldSpeed0,  0, 148);
-    tftdrawNumberFrom(displayF.speed[1], oldSpeed1, 89, 148);
-
-    oldSpeed0 = displayF.speed[0];
-    oldSpeed1 = displayF.speed[1];
+  
+    if(displayMode == METRIC) {
+      tftdrawNumberFrom(displayC.speed[0], oldSpeed0,  0, 148);
+      tftdrawNumberFrom(displayC.speed[1], oldSpeed1, 89, 148);
+      oldSpeed0 = displayC.speed[0];
+      oldSpeed1 = displayC.speed[1];
+    } else {
+      tftdrawNumberFrom(displayF.speed[0], oldSpeed0,  0, 148);
+      tftdrawNumberFrom(displayF.speed[1], oldSpeed1, 89, 148);
+      oldSpeed0 = displayF.speed[0];
+      oldSpeed1 = displayF.speed[1];
+    }
 
     sensorsUpdated.speedKnots = 0;
   }
@@ -187,7 +217,11 @@ void updateUI()
 
     tft.setTextSize(2);
     tft.setCursor(230, 200);
-    tft.print(displayF.date);
+    if(displayMode == METRIC) {
+      tft.print(displayC.date);
+    } else {
+      tft.print(displayF.date);
+    }
     tft.setTextSize(1);
 
     /*
@@ -272,9 +306,15 @@ void drawUICoolantTemp()
     tftdrawCoolant(7, 1, fgColor);
   }
   
-  tftdrawTextSmall(textLocation +  0,  7, displayF.coolantTemp[0]); //TODO: update john, 5
-  tftdrawTextSmall(textLocation + 20,  7, displayF.coolantTemp[1]); //TODO: update john, 5
-  tftdrawTextSmall(textLocation + 40,  7, displayF.coolantTemp[2]); //TODO: update john, 5
+  if (displayMode == METRIC) {
+    tftdrawTextSmall(textLocation +  0,  7, displayC.coolantTemp[0]); //TODO: update john, 5
+    tftdrawTextSmall(textLocation + 20,  7, displayC.coolantTemp[1]); //TODO: update john, 5
+    tftdrawTextSmall(textLocation + 40,  7, displayC.coolantTemp[2]); //TODO: update john, 5
+  } else {
+    tftdrawTextSmall(textLocation +  0,  7, displayF.coolantTemp[0]); //TODO: update john, 5
+    tftdrawTextSmall(textLocation + 20,  7, displayF.coolantTemp[1]); //TODO: update john, 5
+    tftdrawTextSmall(textLocation + 40,  7, displayF.coolantTemp[2]); //TODO: update john, 5
+  }
 
   //Pop the saved fg and bg colors back
   fgColor = saveFgColor;
