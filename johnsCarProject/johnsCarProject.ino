@@ -487,7 +487,8 @@ void gpsLoop()
       Serial.println(minute(rawTime));
       Serial.println("==--------------");
       */
-      adjustTime(-7*60*60);
+      //adjustTime(-7*60*60); //PDT
+      adjustTime(-8*60*60); //PST
       rawTime = now();
       /*
       Serial.println("----------------");
