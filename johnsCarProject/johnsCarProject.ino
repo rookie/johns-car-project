@@ -376,19 +376,25 @@ void calculateUI()
 void tempReadLoop()
 {
   int sensorAnalogValue = analogRead(tempCoolantPin);
-  if (sensorValues.coolantValue != sensorAnalogValue)
+  if (sensorAnalogValue != sensorValues.coolantValue &&
+      (sensorAnalogValue != sensorValues.coolantValue + 1) &&
+      (sensorAnalogValue != sensorValues.coolantValue - 1))
   {
     sensorValues.coolantValue = sensorAnalogValue;
     sensorsUpdated.coolantValue = 1;
   }
   sensorAnalogValue = analogRead(tempOutsidePin);
-  if (sensorValues.outsideValue != sensorAnalogValue)
+  if (sensorAnalogValue != sensorValues.outsideValue &&
+      (sensorAnalogValue != sensorValues.outsideValue + 1) &&
+      (sensorAnalogValue != sensorValues.outsideValue - 1))
   {
     sensorValues.outsideValue = sensorAnalogValue;
     sensorsUpdated.outsideValue = 1;
   }
   sensorAnalogValue = analogRead(tempInsidePin);
-  if (sensorValues.insideValue != sensorAnalogValue)
+  if (sensorAnalogValue != sensorValues.insideValue &&
+      (sensorAnalogValue != sensorValues.insideValue + 1) &&
+      (sensorAnalogValue != sensorValues.insideValue - 1))
   {
     sensorValues.insideValue = sensorAnalogValue;
     sensorsUpdated.insideValue = 1;
