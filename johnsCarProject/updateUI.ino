@@ -171,8 +171,8 @@ void updateUI()
 
   if (sensorsUpdated.speedKnots != 0) {
     //draw text
-    Serial.println(displayF.speed);
-    Serial.println(displayC.speed);
+    //DSerial.println(displayF.speed);
+    //DSerial.println(displayC.speed);
 
     //DEBUG
     tft.setCursor(170, 140);
@@ -191,13 +191,14 @@ void updateUI()
     }
 
     sensorsUpdated.speedKnots = 0;
+    
   }
 
 
   if (sensorsUpdated.min != 0) {
     //draw text
-    Serial.println(displayF.time);
-    Serial.println(displayC.time);
+    //DSerial.println(displayF.time);
+    //DSerial.println(displayC.time);
 
     //hours
     tftdrawTextSmall(214, 166, displayF.time[0]); //TODO: update john, 175
@@ -212,8 +213,8 @@ void updateUI()
 
   if (sensorsUpdated.day != 0) {
     //draw text
-    Serial.println(displayF.date);
-    Serial.println(displayC.date);
+    //DSerial.println(displayF.date);
+    //DSerial.println(displayC.date);
 
     tft.setTextSize(2);
     tft.setCursor(230, 200);

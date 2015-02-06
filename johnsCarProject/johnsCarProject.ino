@@ -37,6 +37,8 @@
 //#define dc   8
 //#define rst  0  // you can also connect this to the Arduino reset
 
+#define gpsPin 3
+
 #include <Time.h>
 
 //#include <Adafruit_GFX.h>    // Core graphics library
@@ -57,18 +59,25 @@ PDQ_ILI9340 tft;				// PDQ: create LCD object (using pins in "PDQ_ST7735_config.
 #define COLOR_WHITE ILI9340_WHITE
 #define COLOR_BLACK ILI9340_BLACK
 #define COLOR_RED   ILI9340_RED  
+#define COLOR_GREEN   ILI9340_GREEN  
 #define COLOR_YELLOW ILI9340_YELLOW
 #define COLOR_BLUE ILI9340_BLUE
 
 //GPS
 // If using software serial, keep these lines enabled
 // (you can change the pin numbers to match your wiring):
-SoftwareSerial mySerial(3, 2);
+SoftwareSerial mySerial(3, 2); //2 is tx 3 is overridden HIGH by gpsPin
 
-Adafruit_GPS GPS(&mySerial);
+#define DSerial mySerial
+//#define DSerial Serial
+
+
+//Serial = NULL;
+
+//Adafruit_GPS GPS(&mySerial);
 // If using hardware serial (e.g. Arduino Mega), comment
 // out the above six lines and enable this line instead:
-//Adafruit_GPS GPS(&Serial1);
+Adafruit_GPS GPS(&Serial);
 
 
 // Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
@@ -119,16 +128,22 @@ struct displayValues displayF;
 struct displayValues displayC;
 
 void setup(void) {
-  Serial.begin(9600);
-  Serial.println("hello!");
+  
+  
+//14400
+//19200
+//28800
+//38400
+  DSerial.begin(57600);
+  DSerial.println("setup");
 
   setupLCD();
 
   tft.setRotation(3);
   //fgColor = tft.Color565(255, 165, 0);
   //fgColor = tft.Color565(255, 127, 0);
-  //Serial.print("fgColor: 0x");
-  //Serial.println(fgColor, HEX);
+  //DSerial.print("fgColor: 0x");
+  //DSerial.println(fgColor, HEX);
   
   tft.setTextColor(fgColor, bgColor);
   
@@ -137,14 +152,13 @@ void setup(void) {
 
   //DEBUG
   //drawDebugUI();
-
   drawInitialUI();
-
-  Serial.println("done");
+  DSerial.println("setup done");
 }
 
 void setupGPS()
 {
+  DSerial.println("setupGPS()");
   
   // 9600 NMEA is the default baud rate for Adafruit MTK GPS's- some use 4800
   GPS.begin(9600);
@@ -171,8 +185,10 @@ void setupGPS()
 
   delay(1000);
   // Ask for firmware version
-  mySerial.println(PMTK_Q_RELEASE);
+  //GPS.sendCommand(PMTK_Q_RELEASE);
   
+  
+  DSerial.println("setupGPS() done");
 }
 
 void setupLCD()
@@ -191,12 +207,12 @@ void setupLCD()
   //HACK: new stuff from GFX library, should probably be in library
   SPI.setClockDivider(SPI_CLOCK_DIV2);	// 8 MHz (full! speed!) [1 byte every 18 cycles]
 
-  Serial.println("init");
+  DSerial.println("init");
 
   uint16_t time = millis();
   tft.fillScreen(bgColor);
   time = millis() - time;
-  Serial.println(time, DEC);
+  DSerial.println(time, DEC);
   
   pinMode(light, OUTPUT);
   digitalWrite(light, HIGH);
@@ -441,7 +457,7 @@ void gpsLoop()
     char c = GPS.read();
     // if you want to debug, this is a good time to do it!
     if (GPSECHO)
-      if (c) Serial.print(c);
+      if (c) DSerial.print(c);
   }
   
   // if a sentence is received, we can check the checksum, parse it...
@@ -459,7 +475,9 @@ void gpsLoop()
   if (timer > millis())  timer = millis();
 
   // approximately every 0.5 seconds or so, print out the current stats
-  if (millis() - timer > 500) {
+  if (millis() - timer > 200) {
+    DSerial.print("has fix = ");
+    DSerial.println(GPS.fix);
     timer = millis(); // reset the timer
     /*
     Serial.print("\nTime: ");
@@ -488,50 +506,62 @@ void gpsLoop()
     
     if (sensorValues.min != GPS.minute)
     {
-      //TODO: this is UTC time
+      //TODO: this is UTC time        
       setTime(GPS.hour, GPS.minute, 0, GPS.day, GPS.month, GPS.year);
-      Serial.println(GPS.year);
       time_t rawTime = now();
+      
       /*
-      Serial.println("================");
-      Serial.println(hour());
-      Serial.println(minute());
-      Serial.println("----------------");
-      Serial.println(hour(rawTime));
-      Serial.println(minute(rawTime));
-      Serial.println("==--------------");
+      DSerial.println("================");
+      DSerial.print(GPS.hour);
+      DSerial.print(":");
+      DSerial.println(GPS.minute);
+      DSerial.print(GPS.month);
+      DSerial.print("/");
+      DSerial.print(GPS.day);
+      DSerial.print("/");
+      DSerial.println(2000+GPS.year);
+      DSerial.println("==--------------");
       */
+      
+      
+      DSerial.println("====");
+      DSerial.print(hour());
+      DSerial.print(":");
+      DSerial.println(minute());
+      DSerial.print(hour(rawTime));
+      DSerial.print(":");
+      DSerial.println(minute(rawTime));
       //adjustTime(-7*60*60); //PDT
       adjustTime(-8*60*60); //PST
       rawTime = now();
-      /*
-      Serial.println("----------------");
-      Serial.println(hour());
-      Serial.println(minute());
-      Serial.println("----------------");
-      Serial.println(hour(rawTime));
-      Serial.println(minute(rawTime));
-      Serial.println("");
-      */
-    
-    if (sensorValues.month != month(rawTime) || sensorValues.day != day(rawTime))
-    {
-      sensorValues.month = month(rawTime);
-      sensorValues.day   = day(rawTime);
       
-      sensorsUpdated.month = 1;
-      sensorsUpdated.day = 1;
-    }
-
-    if (sensorValues.hour != hour(rawTime) || sensorValues.min != minute(rawTime))
-    {
-      sensorValues.hour  = hour(rawTime);
-      sensorValues.min   = minute(rawTime);
-      if (sensorValues.hour > 12) sensorValues.hour -= 12;
+      DSerial.println("----");
+      DSerial.print(hour());
+      DSerial.print(":");
+      DSerial.println(minute());
+      DSerial.print(hour(rawTime));
+      DSerial.print(":");
+      DSerial.println(minute(rawTime));
+        
       
-      sensorsUpdated.hour = 1;
-      sensorsUpdated.min = 1;
-    }
+      if (sensorValues.month != month(rawTime) || sensorValues.day != day(rawTime))
+      {
+        sensorValues.month = month(rawTime);
+        sensorValues.day   = day(rawTime);
+        
+        sensorsUpdated.month = 1;
+        sensorsUpdated.day = 1;
+      }
+  
+      if (sensorValues.hour != hour(rawTime) || sensorValues.min != minute(rawTime))
+      {
+        sensorValues.hour  = hour(rawTime);
+        sensorValues.min   = minute(rawTime);
+        if (sensorValues.hour > 12) sensorValues.hour -= 12;
+        
+        sensorsUpdated.hour = 1;
+        sensorsUpdated.min = 1;
+      }
     
     }
     //TODO: Just assume this is always updating?
