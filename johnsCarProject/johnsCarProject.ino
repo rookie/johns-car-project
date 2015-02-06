@@ -18,7 +18,10 @@
 
 //TODO: add string term \0 to UIvalues, somebody will print them someday
 
-//#define DEMO_MODE
+int debug_demo_mode = 0;
+int debug_fast_baud = 1;
+int debug_fast_update = 1;
+int debug_show_gps_fix = 1;
 
 #define tempCoolantPin A0
 #define tempOutsidePin A1
@@ -156,12 +159,47 @@ void setup(void) {
   DSerial.println("setup done");
 }
 
+#ifndef PMTK_API_SET_FIX_CTL_1HZ
+#define PMTK_API_SET_FIX_CTL_1HZ  "$PMTK300,1000,0,0,0,0*1C"
+#define PMTK_API_SET_FIX_CTL_5HZ  "$PMTK300,200,0,0,0,0*2F"
+#endif
+
+//http://www.hhhh.org/wiml/proj/nmeaxor.html
+#define PMTK_SET_BAUD_14400  "$PMTK251,14400*29"
+#define PMTK_SET_BAUD_19200  "$PMTK251,19200*22"
+//#define PMTK_SET_BAUD_28800  "$PMTK251,28800*2A"
+#define PMTK_SET_BAUD_38400  "$PMTK251,38400*27"
+
+
 void setupGPS()
 {
   DSerial.println("setupGPS()");
   
-  // 9600 NMEA is the default baud rate for Adafruit MTK GPS's- some use 4800
-  GPS.begin(9600);
+  //Enable GPS
+  pinMode(gpsPin, OUTPUT);
+  digitalWrite(gpsPin, HIGH);
+  delay(1000);
+
+  if(debug_fast_baud)
+  {
+    // 9600 NMEA is the default baud rate for Adafruit MTK GPS's- some use 4800
+    GPS.begin(9600);
+    DSerial.println("faster baud");
+    GPS.sendCommand(PMTK_SET_BAUD_57600);
+    delay(500);
+    GPS.begin(57600);
+    delay(500);
+    DSerial.println("faster baud done");
+  } else {
+    // 9600 NMEA is the default baud rate for Adafruit MTK GPS's- some use 4800
+    GPS.begin(57600);
+    DSerial.println("slower baud");
+    GPS.sendCommand(PMTK_SET_BAUD_9600);
+    delay(500);
+    GPS.begin(9600);
+    delay(500);
+    DSerial.println("slower baud done");
+  }
   
   // uncomment this line to turn on RMC (recommended minimum) and GGA (fix data) including altitude
   //GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
@@ -171,11 +209,19 @@ void setupGPS()
   // the parser doesn't care about other sentences at this time
   
   // Set the update rate
-  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);   // 1 Hz update rate
+  if(debug_fast_update) {
+    GPS.sendCommand(PMTK_SET_NMEA_UPDATE_5HZ);   // 5 Hz update rate
+    GPS.sendCommand(PMTK_API_SET_FIX_CTL_5HZ);
+  } else {
+    GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);   // 1 Hz update rate
+    GPS.sendCommand(PMTK_API_SET_FIX_CTL_1HZ);
+  }
+  
+  
   // For the parsing code to work nicely and have time to sort thru the data, and
   // print it out we don't suggest using anything higher than 1 Hz
 
-  // Request updates on antenna status, comment out to keep quiet
+  // Turn off updates on antenna status
   GPS.sendCommand(PGCMD_NOANTENNA);
 
   // the nice thing about this code is you can have a timer0 interrupt go off
@@ -227,19 +273,19 @@ void loop() {
   //Tests
   //testUIBars();
   
-#ifdef DEMO_MODE
-  testUISpeed();
-  testUIDateTime();
-#endif
+  if(debug_demo_mode) {
+    testUISpeed();
+    testUIDateTime();
+  }
 
   calculateUI();
   
-#ifdef DEMO_MODE
-  testUITemp(); //Must run after calculateUI()
-#endif
-
+  if(debug_demo_mode) {
+    testUITemp(); //Must run after calculateUI()
+  }
+  
   updateUI();
-  delay(100);
+  //delay(100);
 }
 
 void testUITemp()
