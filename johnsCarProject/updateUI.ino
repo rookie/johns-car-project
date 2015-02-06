@@ -238,6 +238,23 @@ void updateUI()
     sensorsUpdated.month = 0;
     sensorsUpdated.day = 0;
   }
+  
+  //DEBUG draw when fix
+  static int had_fix = -1;
+  if(debug_show_gps_fix)
+  {
+    if(sensorValues.fix != had_fix)
+    {
+      tft.drawRect(320-16, 240-16, 16, 16, fgColor);
+      if(sensorValues.fix){
+        tft.fillRect(320-15, 240-15, 14, 14, COLOR_GREEN);
+      } else {
+        tft.fillRect(320-15, 240-15, 14, 14, bgColor);
+      }
+      
+      had_fix = sensorValues.fix;
+    }
+  }
 
 }
 

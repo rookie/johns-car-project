@@ -97,6 +97,7 @@ uint16_t fgColor = COLOR_WHITE;
 uint16_t bgColor = COLOR_BLACK;
 typedef enum {IMPERIAL, METRIC, NONE} displayMode_t;
 displayMode_t displayMode = IMPERIAL;
+int offsetDST = 0;
 
 struct values {
    uint16_t coolantValue;
@@ -151,6 +152,34 @@ void setup(void) {
   tft.setTextColor(fgColor, bgColor);
   
 
+  //Mode changing
+  int toggleLeft_GST = digitalRead(4);
+  int toggleRight_MPH = digitalRead(7);
+  if(toggleLeft_GST == LOW)
+  {
+    DSerial.println("Set GST Offset");
+    toggleDSTOffset();
+  } else 
+  
+  if (toggleRight_MPH == LOW)
+  { 
+    DSerial.println("Toggle MPH/KPH");
+    toggleMPHMode();
+  }
+  
+  
+  if (getDSTOffset() == 0) {
+    offsetDST = 0;
+  } else {
+    offsetDST = 1;
+  }
+  
+  if (getMPHMode() == 0) {
+    displayMode = IMPERIAL;
+  } else {
+    displayMode = METRIC;
+  }
+  
   setupGPS();
 
   //DEBUG
@@ -422,6 +451,11 @@ void calculateUI()
     //TODO: support 100+ numbers
     if(sensorValues.speedMPH > 99) sensorValues.speedMPH = 99;
     if(sensorValues.speedKPH > 99) sensorValues.speedKPH = 99;
+    
+    //Hide low values
+    if(sensorValues.speedMPH <= 2) sensorValues.speedMPH = 0;
+    if(sensorValues.speedKPH <= 3) sensorValues.speedKPH = 0;
+    
     sprintf(displayF.speed, "%2d", sensorValues.speedMPH); 
     sprintf(displayC.speed, "%2d", sensorValues.speedKPH); 
   }
@@ -577,8 +611,11 @@ void gpsLoop()
       DSerial.print(hour(rawTime));
       DSerial.print(":");
       DSerial.println(minute(rawTime));
+      
+      int GSTOffset = -8 + offsetDST;
       //adjustTime(-7*60*60); //PDT
-      adjustTime(-8*60*60); //PST
+      //adjustTime(-8*60*60); //PST
+      adjustTime(GSTOffset*60*60);
       rawTime = now();
       
       DSerial.println("----");
