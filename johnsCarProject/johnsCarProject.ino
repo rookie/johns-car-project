@@ -530,6 +530,7 @@ void useInterrupt(boolean v) {
 uint32_t timer = millis();
 void gpsLoop()
 {
+  char *lastNMEA;
   // in case you are not using the interrupt above, you'll
   // need to 'hand query' the GPS, not suggested :(
   if (! usingInterrupt) {
@@ -547,8 +548,12 @@ void gpsLoop()
     // so be very wary if using OUTPUT_ALLDATA and trytng to print out data
     //Serial.println(GPS.lastNMEA());   // this also sets the newNMEAreceived() flag to false
   
-    if (!GPS.parse(GPS.lastNMEA()))   // this also sets the newNMEAreceived() flag to false
+    lastNMEA = GPS.lastNMEA();
+    if (!GPS.parse(lastNMEA))   // this also sets the newNMEAreceived() flag to false
+    {
+      DSerial.println("GPS parse failed");
       return;  // we can fail to parse a sentence in which case we should just wait for another
+    }
   }
 
   // if millis() or timer wraps around, we'll just reset it
