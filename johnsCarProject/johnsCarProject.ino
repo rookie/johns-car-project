@@ -174,7 +174,7 @@ void setup(void) {
     offsetDST = 1;
   }
   
-  if (getMPHMode() == 0) {
+  if (getMPHMode() == 0 || debug_demo_mode) {
     displayMode = IMPERIAL;
   } else {
     displayMode = METRIC;

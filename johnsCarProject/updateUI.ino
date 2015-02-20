@@ -65,7 +65,7 @@ void drawInitialUI()
   tft.fillRect( 10,  48, 300, 3, fgColor);
 
   //Engine temp Bar
-  tft.drawRect( 0,  0,  320, 40, fgColor);
+  //tft.drawRect( 0,  0,  320, 40, fgColor);
   //tft.fillRect( 0,  0, 320 / 2, 40, fgColor);
 
   tftdrawCoolant( 7, 1, fgColor);
